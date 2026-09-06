@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>重庆市医师定期考核复习工具 - 双模式</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            max-width: 750px;
+            margin: 30px auto;
+            padding: 20px;
+            background: #f5f7fa;
+            color: #333;
+        }
+        .container {
+            background: #fff;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-top: 0;
+            font-size: 26px;
+        }
+
+        /* ===== 模式选择 ===== */
+        #modeSelect {
+            text-align: center;
+            padding: 30px 0;
+        }
+        #modeSelect h2 {
+            font-size: 20px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .mode-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .mode-btn {
+            padding: 20px 40px;
+            border: 3px solid #dee2e6;
+            border-radius: 16px;
+            background: #fff;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 160px;
+        }
+        .mode-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+        }
+        .mode-btn .sub {
+            display: block;
+            font-size: 13px;
+            font-weight: 400;
+            color: #7f8c8d;
+            margin-top: 6px;
+        }
+        .mode-btn.exam-mode {
+            border-color: #3498db;
+            background: #ebf5fb;
+        }
+        .mode-btn.exam-mode:hover {
+            border-color: #2980b9;
+            background: #d6eaf8;
+        }
+        .mode-btn.practice-mode {
+            border-color: #e67e22;
+            background: #fef5e7;
+        }
+        .mode-btn.practice-mode:hover {
+            border-color: #d35400;
+            background: #fdebd0;
+        }
+
+        /* ===== 顶部信息栏 ===== */
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #eef2f7;
+            padding: 12px 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .header-bar .info {
+            font-size: 14px;
+            color: #555;
+        }
+        .header-bar .info span {
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        .badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .badge.exam-badge {
+            background: #3498db;
+            color: #fff;
+        }
+        .badge.practice-badge {
+            background: #e67e22;
+            color: #fff;
+        }
+        .badge.done-badge {
+            background: #27ae60;
+            color: #fff;
+        }
+
+        /* ===== 题目区域 ===== */
+        .question-number {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 6px;
+        }
+        .question-text {
+            font-size: 18px;
+            font-weight: 600;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .option {
+            display: block;
+            padding: 14px 18px;
+            margin-bottom: 10px;
+            border: 2px solid #e0e4e8;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #fafbfc;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+        .option:hover:not(.disabled) {
+            border-color: #3498db;
+            background: #edf3fa;
+        }
+        .option.selected {
+            border-color: #3498db;
+            background: #d6e8f7;
+        }
+        .option.practice-correct {
+            border-color: #27ae60;
+            background: #e8f8ef;
+        }
+        .option.practice-wrong {
+            border-color: #e74c3c;
+            background: #fde8e8;
+        }
+        .option.correct-reveal {
+            border-color: #27ae60;
+            background: #e8f8ef;
+        }
+        .option.wrong-reveal {
+            border-color: #e74c3c;
+            background: #fde8e8;
+        }
+        .option.missed-reveal {
+            border-color: #e74c3c;
+            background: #fde8e8;
+        }
+        .option.disabled {
+            cursor: default;
+        }
+        .option .mark {
+            float: right;
+            font-weight: 700;
+            font-size: 18px;
+        }
+        .option .result-icon {
+            float: right;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .mark-btn {
+            background: none;
+            border: 2px solid #bdc3c7;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            color: #bdc3c7;
+        }
+        .mark-btn:hover {
+            transform: scale(1.1);
+        }
+        .mark-btn.marked {
+            border-color: #f39c12;
+            color: #f39c12;
+            background: #fef9e7;
+        }
+        .mark-btn:active {
+            transform: scale(0.9);
+        }
+
+        .nav-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 25px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .nav-area .btn-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        button {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .btn-prev {
+            background: #ecf0f1;
+            color: #2c3e50;
+        }
+        .btn-prev:hover { background: #dde1e3; }
+        .btn-next {
+            background: #3498db;
+            color: #fff;
+        }
+        .btn-next:hover { background: #2980b9; }
+        .btn-submit {
+            background: #27ae60;
+            color: #fff;
+            font-size: 16px;
+            padding: 12px 36px;
+        }
+        .btn-submit:hover { background: #1e8449; }
+        .btn-reset {
+            background: #e67e22;
+            color: #fff;
+        }
+        .btn-reset:hover { background: #d35400; }
+        .btn-wrong {
+            background: #e74c3c;
+            color: #fff;
+        }
+        .btn-wrong:hover { background: #c0392b; }
+        .btn-back {
+            background: #95a5a6;
+            color: #fff;
+        }
+        .btn-back:hover { background: #7f8c8d; }
+        .btn-back-wrong {
+            background: #8e44ad;
+            color: #fff;
+        }
+        .btn-back-wrong:hover { background: #6c3483; }
+        .btn-overview {
+            background: #1abc9c;
+            color: #fff;
+        }
+        .btn-overview:hover { background: #16a085; }
+        .btn-back-overview {
+            background: #2ecc71;
+            color: #fff;
+            font-size: 13px;
+            padding: 10px 18px;
+        }
+        .btn-back-overview:hover { background: #27ae60; }
+        .btn-home {
+            background: #34495e;
+            color: #fff;
+        }
+        .btn-home:hover { background: #2c3e50; }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #ecf0f1;
+            border-radius: 2px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+        .progress-bar .fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        .result-box {
+            text-align: center;
+            padding: 20px 0;
+        }
+        .result-box .score {
+            font-size: 64px;
+            font-weight: 800;
+            color: #2c3e50;
+        }
+        .result-box .score span {
+            font-size: 28px;
+            color: #7f8c8d;
+        }
+        .result-box .detail {
+            font-size: 16px;
+            color: #555;
+            margin: 10px 0 20px;
+        }
+        .result-box .detail .green { color: #27ae60; font-weight: 700; }
+        .result-box .detail .red { color: #e74c3c; font-weight: 700; }
+        .result-box .detail .orange { color: #f39c12; font-weight: 700; }
+
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+            gap: 8px;
+            margin: 20px 0;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+        }
+        .overview-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid #dee2e6;
+            background: #fff;
+            color: #2c3e50;
+            position: relative;
+        }
+        .overview-item:hover {
+            transform: scale(1.08);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+        }
+        .overview-item.correct {
+            border-color: #27ae60;
+            background: #e8f8ef;
+            color: #27ae60;
+        }
+        .overview-item.wrong {
+            border-color: #e74c3c;
+            background: #fde8e8;
+            color: #e74c3c;
+        }
+        .overview-item.unanswered {
+            border-color: #bdc3c7;
+            background: #f4f6f7;
+            color: #95a5a6;
+        }
+        .overview-item .star-mark {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            font-size: 14px;
+            color: #f39c12;
+        }
+
+        .wrong-list {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .wrong-item {
+            border-bottom: 1px solid #eee;
+            padding: 14px 0;
+            cursor: pointer;
+            transition: background 0.15s ease;
+            border-radius: 8px;
+            padding-left: 12px;
+            padding-right: 12px;
+        }
+        .wrong-item:hover {
+            background: #f0f3f8;
+        }
+        .wrong-item .q {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .wrong-item .your-ans { color: #e74c3c; }
+        .wrong-item .correct-ans { color: #27ae60; }
+        .wrong-item .jump-hint {
+            font-size: 12px;
+            color: #8e44ad;
+            font-weight: 500;
+        }
+
+        .hidden { display: none; }
+
+        @media (max-width: 500px) {
+            .container { padding: 16px; }
+            .question-text { font-size: 16px; }
+            .option { font-size: 14px; padding: 12px 14px; }
+            .nav-area .btn-group button { padding: 8px 16px; font-size: 13px; }
+            .result-box .score { font-size: 44px; }
+            .overview-grid { grid-template-columns: repeat(auto-fill, minmax(38px, 1fr)); gap: 6px; }
+            .overview-item { width: 38px; height: 38px; font-size: 13px; }
+            .mode-btn { padding: 14px 24px; font-size: 16px; min-width: 120px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="app">
+    <h1>📝 重医附三院医师定考复习工具-第十五套卷（人文）</h1>
+
+    <!-- ===== 模式选择 ===== -->
+    <div id="modeSelect">
+        <h2>选择模式</h2>
+        <div class="mode-buttons">
+            <button class="mode-btn exam-mode" onclick="selectMode('exam')">
+                📝 考试模式
+                <span class="sub">全部答完再交卷，统一判分</span>
+            </button>
+            <button class="mode-btn practice-mode" onclick="selectMode('practice')">
+                ⚡ 练习模式
+                <span class="sub">每选一题立刻显示正确答案</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== 主界面 ===== -->
+    <div id="mainArea" class="hidden">
+
+        <div class="header-bar" id="headerBar">
+            <div class="info">
+                📌 <span id="currentNum">1</span>/<span id="totalNum">0</span>
+                &nbsp;&nbsp;|&nbsp;&nbsp;✅ 已答: <span id="answeredCount">0</span>
+                &nbsp;&nbsp;|&nbsp;&nbsp;⭐ 标记: <span id="markedCount">0</span>
+            </div>
+            <div>
+                <span class="badge" id="statusBadge">📝 考试模式</span>
+                <button class="btn-home" onclick="goHome()" style="font-size:12px;padding:4px 12px;margin-left:8px;">🏠 返回首页</button>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="fill" id="progressFill" style="width:0%"></div>
+        </div>
+
+        <!-- ===== 答题区域 ===== -->
+        <div id="examArea">
+            <div class="top-bar">
+                <div class="question-number" id="qNumber">第 1 题</div>
+                <div>
+                    <button class="mark-btn" id="markBtn" onclick="toggleMark()" title="标记此题">☆</button>
+                    <button class="btn-back-wrong hidden" id="backToWrongBtn" onclick="backToWrongBook()" style="font-size:13px;padding:6px 16px;margin-left:6px;">📕 返回错题集</button>
+                </div>
+            </div>
+            <div class="question-text" id="qText">加载题目中...</div>
+            <div id="optionsContainer"></div>
+
+            <div class="nav-area">
+                <div class="btn-group">
+                    <button class="btn-prev" id="prevBtn" onclick="prevQuestion()">⬅ 上一题</button>
+                    <button class="btn-next" id="nextBtn" onclick="nextQuestion()">下一题 ➡</button>
+                    <button class="btn-back-overview hidden" id="backToOverviewBtn" onclick="backToOverview()">📊 返回总览</button>
+                    <button class="btn-overview hidden" id="practiceOverviewBtn" onclick="showPracticeOverview()">📊 题号总览</button>
+                </div>
+                <button class="btn-submit hidden" id="submitBtn" onclick="submitExam()">📊 交卷</button>
+            </div>
+        </div>
+
+        <!-- ===== 结果区域 ===== -->
+        <div id="resultArea" class="hidden">
+            <div class="result-box">
+                <div class="score" id="scoreDisplay">0<span> / 100</span></div>
+                <div class="detail">
+                    正确 <span class="green" id="correctCountDisplay">0</span> 题 &nbsp;·&nbsp;
+                    错误 <span class="red" id="wrongCountDisplay">0</span> 题 &nbsp;·&nbsp;
+                    未答 <span class="orange" id="unansweredCountDisplay">0</span> 题 &nbsp;·&nbsp;
+                    ⭐ 标记 <span class="orange" id="markedCountDisplay">0</span> 题
+                </div>
+                <div style="margin-top:10px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+                    <button class="btn-overview" onclick="showOverview()">📊 题号总览</button>
+                    <button class="btn-wrong" onclick="showWrongBook()">📕 查看错题集</button>
+                    <button class="btn-reset" onclick="resetExam()">🔄 重新考试</button>
+                    <button class="btn-back" onclick="backToExam()">📝 回到试卷</button>
+                </div>
+            </div>
+
+            <!-- 题号总览（考试模式） -->
+            <div id="overviewArea" class="hidden">
+                <h3>📊 题号总览 <span style="font-size:14px;font-weight:400;color:#7f8c8d;">（点击题号跳转）</span></h3>
+                <div class="overview-grid" id="overviewGrid"></div>
+                <button class="btn-back" onclick="closeOverview()" style="margin-top:12px;">关闭总览</button>
+            </div>
+
+            <!-- 练习模式总览 -->
+            <div id="practiceOverviewArea" class="hidden">
+                <h3>📊 练习进度 <span style="font-size:14px;font-weight:400;color:#7f8c8d;">（点击题号跳转）</span></h3>
+                <div class="overview-grid" id="practiceOverviewGrid"></div>
+                <button class="btn-back" onclick="closePracticeOverview()" style="margin-top:12px;">关闭总览</button>
+            </div>
+
+            <!-- 错题集 -->
+            <div id="wrongBookArea" class="hidden wrong-list">
+                <h3>📕 错题集 <span style="font-size:14px;font-weight:400;color:#7f8c8d;">（点击任意错题跳转回顾）</span></h3>
+                <div id="wrongListContainer"></div>
+                <button class="btn-back" onclick="closeWrongBook()" style="margin-top:12px;">关闭总览</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ============================================================
+    //  题库数据（1-10题）
+    // ============================================================
+       const questions = [
+// ===== 1401-1550题 =====
+    { q: "关于医疗机构配制的制剂，下列不正确的是", opts: ["应当是本单位临床需要而市场上没有供应的品种", "需经所在地省、自治区、直辖市人民政府药品监督管理部门批准后方可配制", "配制的制剂必须按照规定进行质量检验", "质检合格的制剂，凭医师处方在本医疗机构使用", "制剂疗效好就可在市场销售"], ans: 4 },
+    { q: "医师资格考试的组织实施主体是", opts: ["国家人事部门", "国家考试中心", "省级人民政府人事部门", "省级以上人民政府卫生健康主管部门", "国务院卫生行政部门"], ans: 3 },
+    { q: "发生以下何项重大医疗过失行为时，医疗机构应向所在地卫生行政部门报告", opts: ["可能是二级以上医疗事故的", "可能是三级医疗事故的", "患者因病死亡的", "导致1人人身损害后果的", "导致2人人身损害后果的"], ans: 0 },
+    { q: "以师承方式学习中医专业满几年，或者经多年实践医术确有专长的，经县级以上人民政府卫生健康主管部门委托相关机构考核合格并推荐，可以参加中医医师资格考试", opts: ["2", "3", "4", "5", "无年限限制"], ans: 1 },
+    { q: "医疗机构应当依照有关法律、法规的规定，严格执行一些特殊制品的进货查验、保管等制度。这些特殊制品不包括", opts: ["药品", "医疗器械", "消毒药剂", "血液", "清洁工具"], ans: 4 },
+    { q: "医疗纠纷人民调解委员会调解医疗纠纷时，需要咨询专家或进行医疗损害鉴定的情况下，关于当事人对其认为可能影响医疗纠纷公正处理的人员申请回避的表述，以下不正确的是", opts: ["当事人可以以书面形式申请鉴定人员回避", "当事人可以以口头形式申请鉴定人员回避", "当事人可以以口头形式申请咨询专家回避", "当事人可以以书面形式申请咨询专家回避", "当事人不能以口头形式申请咨询专家回避"], ans: 4 },
+    { q: "如果献血者身体状况不符合献血条件，血站应如何对待", opts: ["血站不得采集血液，不必向其说明情况", "血站应先采集献血者的血液，如果血液检测正常就可以供临床使用", "血站应向其说明情况，不得采集血液", "血站应向其说明情况，并收取适当的检查费用", "血站应向其说明情况，可采集血液"], ans: 2 },
+    { q: "医疗事故技术鉴定，可以收取鉴定费用。下列有关医疗损害鉴定费的收取方法，说法正确的是", opts: ["鉴定费由医方支付", "鉴定费预先向医患双方收取，最终按照责任比例承担", "鉴定费由患方承担", "经鉴定，属于医疗事故的，鉴定费用由医疗机构支付", "经鉴定，不属于医疗事故的，鉴定费用由提出医疗事故处理申请的一方支付"], ans: 1 },
+    { q: "《中华人民共和国献血法》规定，献血者两次献血的时间间隔不得少于", opts: ["一个月", "二个月", "三个月", "四个月", "六个月"], ans: 4 },
+    { q: "医疗机构施行手术、特殊检查或特殊治疗时，如果无法取得患者意见又无家属或关系人在场，应该", opts: ["经治医师提出医疗处置方案，在取得县级以上卫生行政部门批准后实施", "经治医师提出医疗处置方案，在取得医疗机构负责人或者被授权负责人员的批准后实施", "经治医师提出医疗处置方案，在取得群众认可后实施", "经治医师提出医疗处置方案，在取得第三者证实有效后实施", "经治医师根据医疗处置方案，在取得同行讨论批准后实施"], ans: 1 },
+    { q: "心理咨询与心理治疗的区别不包括", opts: ["工作的任务不同", "对象和情境不同", "性质和过程不同", "身份与工作方式不同", "解决问题的性质和内容不同"], ans: 2 },
+    { q: "精神分析基本理论的特点是", opts: ["基本课题是心身问题", "研究对人类进步富有意义的问题，关心人的价值和尊严", "源于治疗精神病的临床经验，强调潜(无)意识的研究", "研究刺激和反应", "研究影响健康和疾病的心理与生理中介机制"], ans: 2 },
+    { q: "把自己的愿望与动机归于他人，断言他人有此动机或愿望。这是心理防御机制中的", opts: ["压抑", "投射", "否认", "固着", "焦虑"], ans: 1 },
+    { q: "机体为了应对有害环境刺激而唤起体内整体的防御能力，进行体内能量的动员，如肾上腺素分泌增加、血压升高、呼吸心率加快等，这属于GAS模式中什么时期", opts: ["衰竭期", "阻抗期", "警戒期", "激发期", "衰竭期和激发期"], ans: 2 },
+    { q: "根据马斯洛的需要层次理论，安全需要获得一定程度满足后，哪种需要即成为占主导地位的需要", opts: ["生理需要", "安全需要", "归属和爱的需要", "尊重需要", "自我实现的需要"], ans: 2 },
+    { q: "'一种心理测量的工具'称为", opts: ["心理评估", "心理鉴定", "心理测验", "心理观察", "心理调查"], ans: 2 },
+    { q: "青少年心理矛盾的根本原因是", opts: ["青少年与家长的矛盾", "成人感与半成人感的矛盾", "独立与依赖的矛盾", "心理闭锁性与开放性之间的矛盾", "青少年与家长的矛盾和独立与依赖的矛盾"], ans: 1 },
+    { q: "患病时，最难以满足的是", opts: ["生理需要", "安全需要", "尊重需要", "自我成就的需要", "生理需要和安全需要"], ans: 3 },
+    { q: "透析治疗患者心理反应中的悲观绝望期常常是在", opts: ["透析治疗前", "透析治疗开始1~3周内", "透析治疗中期", "透析治疗后3~6个月", "透析治疗1年后"], ans: 0 },
+    { q: "渴望得到某个团体成员的认可，与他人建立和谐的人际关系，拥有爱情和家庭，属于下列哪种需要", opts: ["安全", "自尊", "归属与爱", "自我实现", "自信"], ans: 2 },
+    { q: "当妊娠危及胎儿母亲的生命时，可允许行人工流产或引产。这符合", opts: ["行善原则", "公正原则", "不伤害原则", "尊重原则", "自主原则"], ans: 2 },
+    { q: "关于对受试者产生意外损伤的公平赔偿应遵循的原则，下列哪项除外", opts: ["事实清楚", "责任分明", "结论准确", "照顾弱者", "赔偿有章"], ans: 3 },
+    { q: "以下哪项是医学伦理学的特征之一", opts: ["灵活性", "集体性", "继承性", "组织性", "非规范性"], ans: 2 },
+    { q: "以下哪项不属于人体试验", opts: ["强迫试验", "动物试验", "志愿试验", "自我试验", "天然试验"], ans: 1 },
+    { q: "医学模式转变对医学伦理学产生的影响是", opts: ["医学更加专业化", "医疗技术复杂化", "研究的范围和深度扩大", "医患关系复杂化", "医学更加专业化和医疗技术复杂化"], ans: 2 },
+    { q: "医学模式转变在医学伦理方面的重要性是", opts: ["促进了医学思维方式的变革", "提高了社会防治疾病的地位", "实现了在更高层次上对人的健康的全面关怀", "加速了祖国医学的整理和提高", "促进了医师知识结构的现代化"], ans: 2 },
+    { q: "下述哪类患者对治疗措施有自主选择权", opts: ["年龄在10周岁以下的患者", "意识清醒的成年人", "处于昏迷状态的患者", "发作期的精神病患者", "老年性痴呆患者"], ans: 1 },
+    { q: "关于实施人类辅助生殖技术的伦理原则，以下不恰当的是", opts: ["知情同意的原则", "控制商品化的原则", "互盲和保密的原则", "维护社会公益的原则", "自愿的原则"], ans: 1 },
+    { q: "医学伦理原则不含", opts: ["不伤害", "公正", "尊重", "胆识", "有利"], ans: 3 },
+    { q: "社会主义市场经济条件下加强医学伦理教育的必要性主要取决于", opts: ["公正分配医药卫生资源的要求", "实现医疗活动道德价值的要求", "协调医际关系的要求", "合理解决卫生劳务分配问题的要求", "正确处理市场经济对医学服务正、负双重效应的要求"], ans: 4 },
+    { q: "在同病人交谈时，你应当选择哪一种方式", opts: ["始终看着病人", "适时与病人目光接触", "低着头记录", "看着窗外", "边查资料边与病人交谈"], ans: 1 },
+    { q: "针对患者治疗期间可能出现的紧急情况，需要进行的沟通是", opts: ["无法预测和事先沟通", "安排对患者的定期随访", "提供紧急情况时获得医疗救助的途径", "告诉患者要坚强和乐观面对", "交代患者家属细心照料和督促治疗"], ans: 2 },
+    { q: "以下哪项是医生对于医患沟通的正确理解", opts: ["医生与患者沟通不良主要是医生缺乏足够的时间", "沟通能力是先天的，靠后天学习不易改变", "医患沟通是一门艺术，需要提高个人综合素质与能力", "个人的沟通能力会随着临床经验的积累自然提高", "医患沟通是由医生单向性主导的"], ans: 2 },
+    { q: "对医患之间信托关系的正确理解是", opts: ["陌生人关系", "不同于一般陌生人关系", "类似于陌生人关系", "父子关系", "主动-被动关系"], ans: 1 },
+    { q: "在接待患者初次就诊时，医生赢得患者及家属信任的关键是", opts: ["具备高超的医疗技术", "承诺以低廉的医疗费用给患者做诊断治疗", "打扮得体，仪表端庄，言谈从容不迫", "表达尊重、真诚、关爱及同情、理解", "以敷衍的态度给患者做诊断治疗"], ans: 3 },
+    { q: "了解患者对疾病的理解，有助于", opts: ["显示医生的权威", "知道患者有多无知", "让患者进行自我疾病教育", "对患者的思想进行研究", "解释病情更有针对性"], ans: 4 },
+    { q: "如果因为医生的错误发生医患纠纷，一些保险公司向医生推荐的道歉方法不包括", opts: ["以积极的方式来对待病人的投诉", "承认对病人造成的影响", "真诚地向病人道歉", "不倾听病人的诉说", "给予病人适当的经济赔偿"], ans: 3 },
+    { q: "以下哪一个医嘱更容易被记住和执行", opts: ["'每天跑步20分钟。'", "'保持足够的运动量。'", "'加强有氧运动。'", "'生命在于运动。'", "'避免一直呆在家里。'"], ans: 0 },
+    { q: "肢体语言不包括以下哪一项", opts: ["面部表情与目光接触", "音调音色", "身体的直接接触", "肢体动作与姿势", "手势指令"], ans: 1 },
+    { q: "就康复训练问题与术后的患者进行沟通，以下哪种做法可以调动患者的参与", opts: ["安慰患者什么都不用去想", "请护士把患者的生活照顾好", "确保患者理解康复训练对他的帮助", "护士记录并向医生报告患者的康复训练情况", "告诉患者康复训练是一项艰难的任务"], ans: 2 },
+    { q: "下列哪项不属于保密原则对医务人员提出的要求", opts: ["保守在治疗中知晓的患者隐私", "从诊断疾病的需要来询问病史，不有意探听患者的隐私", "为患有霍乱的患者保密", "保守可能会给患者带来沉重精神负担的疾病预后", "保守对患者精神可能带来挫伤的肿瘤或其它危害患者生命的病情"], ans: 2 },
+    { q: "医务人员在申报或实施科研项目中，如有抄袭、编造或篡改科研数据和图表，是违反了哪项行为规范", opts: ["不利用执业之便谋取不正当利益", "廉洁自律、恪守医德", "忠诚职业，尽职尽责", "互相尊重，和谐共事", "诚实守信，抵制学术不端行为"], ans: 4 },
+    { q: "关于医生的特殊干涉权，不适用的范围有", opts: ["患者要求了解自己疾病的真情，但当了解后不利于诊断治疗时", "对精神病患者、意志丧失和自杀未遂等患者拒绝治疗时", "患者要求了解自己疾病的真情但有可能产生不良影响时", "人体试验，为保守试验机密时", "人体试验性治疗时，虽然患者已知情同意，但对一些高危的试验时"], ans: 3 },
+    { q: "关于医德情感，以下正确的说法是", opts: ["它与医德义务无关", "它以医务人员个人的需要为前提", "它应能满足病人的一切需要", "它是医务人员的盲目冲动", "它是医务人员内心体验的自然流露"], ans: 4 },
+    { q: "医师在执业活动中的义务不包括", opts: ["遵守技术操作规范", "保护患者隐私", "提高专业技术水平", "宣传推广与岗位相适应的健康科普知识", "无条件加班"], ans: 4 },
+    { q: "对医师的业务水平、工作成绩和职业道德状况，依法享有定期考核权的单位是", opts: ["县级以上人民政府", "县级以上人民政府卫生行政部门", "县级以上人民政府卫生行政部门委托的机构或组织", "医师所在地的医学会", "医师所在地的医师学会"], ans: 2 },
+    { q: "在医学伦理学中，最古老、最有生命力的医德范畴是", opts: ["医疗义务", "医疗审慎", "医疗情感", "医疗良心", "医疗保密"], ans: 4 },
+    { q: "在研究中，利益冲突可能会带来的危害是", opts: ["危害研究者-受试者之间的信托关系", "危害医学这门作为'仁术'的专业", "对受试者、研究者、研究机构和社会都有害", "危害医患关系", "危害病人或受试者"], ans: 4 },
+    { q: "属于医德意识现象的是", opts: ["医德行为", "医德信念", "医德评价", "医德修养", "医德教育"], ans: 1 },
+    { q: "关于保密的说法，下列错误的是", opts: ["对他人和社会有害的医疗秘密不属于保密的范围", "要求医务人员不有意探听病人的隐私", "只有在病人提出保密要求的情况下，医师应为患者的病史等保密", "它是医学伦理学中最有生命力的医德范畴", "它是医学伦理学中最古老的医德范畴"], ans: 2 },
+    { q: "依照法律规定剥夺犯罪人某种权益的强制方法是", opts: ["行政处分", "行政处罚", "民事处罚", "刑罚", "吊销执业证"], ans: 3 },
+    { q: "不须予以隔离治疗的疾病病人是", opts: ["痢疾病人", "艾滋病病人", "炭疽中的肺炭疽病人", "鼠疫病人和病原携带者", "霍乱病人和病原携带者"], ans: 0 },
+    { q: "在传染病的预防工作中，国家实行的制度是", opts: ["有计划的卫生防疫", "爱国卫生运动", "预防保健", "有计划的预防接种", "以上都不是"], ans: 3 },
+    { q: "执业医师的合法处方权", opts: ["大学毕业后即取得", "实习一年后即取得", "医师资格考试合格后取得", "在经注册的执业地点取得", "到任何聘用单位就有处方权"], ans: 3 },
+    { q: "根据我国《医疗机构管理条例实施细则》的规定，医疗机构的门诊病历和住院病历保存的最低年限分别为", opts: ["10年；30年", "10年；15年", "15年；20年", "15年；30年", "10年；20年"], ans: 3 },
+    { q: "《药品管理法》第九十八条界定劣药的依据为", opts: ["药品所含成份的名称与法定药品标准规定是不符合的", "药品成份的含量不符合国家药品标准的", "未取得批准文号生产的", "被污染不能药用的", "变质不能药用的"], ans: 1 },
+    { q: "医疗机构的门诊病历保存期限不得少于", opts: ["3年", "5年", "10年", "15年", "20年"], ans: 3 },
+    { q: "在下列情形中，应当被注销执业医师注册的是", opts: ["终止医师执业活动满一年的", "在医疗事故中负有民事赔偿责任的", "受罚款行政处罚的", "受暂停执业6个月行政处罚的", "构成医疗事故罪而被判处刑罚的"], ans: 4 },
+    { q: "根据《麻醉药品和精神药品管理条例》规定，下列哪一部门应当对执业医师开具麻醉药品和精神药品处方的情况进行监督检查", opts: ["县级以上人民政府", "县级以上人民政府疾病控制部门", "县级以上人民政府卫生主管部门", "县级以上人民政府药品监督管理部门", "市级以上人民政府卫生主管部门"], ans: 2 },
+    { q: "活体捐赠肾脏和尸体器官分配的准则是", opts: ["1989年由世界医学会发布的", "1988年由国际移植学会发布的", "1986年由国际移植学会发布的", "1968年由世界医学会发布的", "1996年由国际移植学会发布的"], ans: 2 },
+    { q: "个体在觉察到威胁或挑战后，会产生一系列的生理和心理反应，这些反应称为", opts: ["心理冲突", "心理应激", "心理挫折", "情绪", "认知"], ans: 1 },
+    { q: "心理健康的标准包括", opts: ["无病无伤无残", "矫正不良行为", "社会行为规范", "情绪稳定乐观", "幻觉妄想表现"], ans: 3 },
+    { q: "下列哪一项与心身疾病的诊断无关", opts: ["器质性病变的临床特点", "有明确的心理社会因素参与发病", "排除神经症或精神病", "单纯生物医学措施疗效甚微", "由某种躯体疾病引发心理障碍"], ans: 4 },
+    { q: "应激的概念最早是由下列哪位学者提出的", opts: ["塞里", "华生", "艾利斯", "巴甫洛夫", "南丁格尔"], ans: 0 },
+    { q: "个体为维持自己生存和种族延续，适应不断变化的复杂环境所做出的各种反应称为", opts: ["应激", "学习", "行为", "动机", "需要"], ans: 2 },
+    { q: "对因考试焦虑而咨询的来访者说：'几乎所有人在关键的时刻都会感到焦虑或紧张'，使用了以下哪种治疗技术", opts: ["解释", "正常化", "支持", "确定", "预先指导"], ans: 1 },
+    { q: "关于同理心，下列表述不正确的是", opts: ["同理心是一种人格特质", "同理心代表一种人际交往能力", "同理心的基本动机是利他", "同理心比同情心含有更多的情感成分", "同理心比同情心含有更多的认知成分"], ans: 3 },
+    { q: "闻到苹果香味，看到苹果红色外观，触摸苹果光滑的果皮等所引起的心理活动是", opts: ["感觉", "知觉", "感受性", "感觉阈限", "知觉和感受性"], ans: 0 },
+    { q: "关于心理应激的说法，以下错误的是", opts: ["应激源是心理社会因素", "肯定对工作会产生不良影响", "可危及个人的生存和地位", "可产生心理反应、生理反应", "与人的人格特征密切相关"], ans: 1 },
+    { q: "不属于青少年心理健康教育的主要内容是", opts: ["世界观、人生观、价值观教育", "性生理、性心理、性道德教育", "友谊观和恋爱观教育", "学习策略和方法的教育", "自我意识形成教育"], ans: 3 },
+    { q: "医学伦理学的核心问题是", opts: ["医务人员之间的关系", "医务人员与患者的关系", "医务人员与社会之间的关系", "医务人员与科学发展之间的关系", "医务人员与患者家属的关系"], ans: 1 },
+    { q: "医学伦理学尊重原则应除外的内容是", opts: ["公平分配卫生资源", "尊重病人及家属的自主性或决定", "尊重病人的知情同意权", "保守病人的秘密", "保护病人的隐私"], ans: 0 },
+    { q: "人类辅助生殖技术的目的是", opts: ["商业化", "演进性优生", "有利于未婚男女生儿育女", "使不育夫妇妊娠", "控制人口数量"], ans: 3 },
+    { q: "在下列各项中，违背卫生部颁布的人类辅助生殖技术伦理原则的是使用", opts: ["捐赠的精子", "亲属代孕", "卵胞浆内单精子注射", "捐赠的卵子", "植入前胚胎遗传学诊断"], ans: 1 },
+    { q: "关于医学伦理学的任务，以下错误的是", opts: ["反映社会对医学的需求", "为医学的发展导向", "为符合道德的医学行为辩护", "努力解决医学活动中产生的伦理问题", "满足患者的所有要求和利益"], ans: 4 },
+    { q: "以下符合临终关怀伦理原则的做法是", opts: ["想方设法延长病人的生命，以使其获得更长的寿命", "研制更加安全可靠的药物，帮助病人安详辞世", "由于临终病人生命质量通常都比较低，没有幸福可言，应及早放弃治疗", "努力减轻临终病人的身体疼痛和心理不适，提高其生命质量", "以上都不是"], ans: 3 },
+    { q: "在公正的内容原则中，进行公正分配的根据不包括", opts: ["根据个人能力", "根据对社会的贡献", "根据个人的地位", "根据科研价值", "根据个人需要"], ans: 2 },
+    { q: "知情同意伦理原则的含义是", opts: ["让病人了解有关医疗信息", "让病人自主选择医疗方案", "病人无条件服从医务人员提出的医疗方案", "病人在知情基础上对医疗方案做出自主选择", "让病人了解疾病转归"], ans: 3 },
+    { q: "下列哪一项说法是错误的", opts: ["行善原则与人体试验是相矛盾的", "行善原则是指为了病人的利益应施加的好处", "行善原则要求医务人员不伤害病人，而且要促进他们的健康和幸福", "行善原则比不伤害原则更加广泛", "行善原则与人体试验是不矛盾的"], ans: 0 },
+    { q: "医学伦理学是研究什么的一门学科", opts: ["行为方式", "医学道德", "法律规范", "科研方法", "医疗行为"], ans: 1 },
+    { q: "向患者解释医学问题，首先应该做的是", opts: ["直接告诉患者疾病的预后", "介绍疾病诊断的程序", "了解患者对疾病知道多少", "交代诊断、病因和治疗", "请患者和家属选择治疗方法"], ans: 2 },
+    { q: "医生和患者交谈时，医生的哪种目光是适当的", opts: ["目光长久直视患者", "不时的注意患者面部和全身", "回避患者视线，仅瞬间目光接触", "避免目光接触", "注视患者脸部以外的地方"], ans: 1 },
+    { q: "对于随访的安排，最明确的是", opts: ["'记得来复诊。'", "'有时间的时候来复诊。'", "'药吃完了再来看看。'", "'下个月再看一次门诊。'", "'4周以后的周五上午来复诊。'"], ans: 4 },
+    { q: "关于患者参与医疗决策的积极意义，以下说法错误的是", opts: ["提高患者依从性", "激发患者的自主意识", "体现以患者为中心", "引起患者的逆反", "提高患者满意度"], ans: 3 },
+    { q: "患者不依从的原因可能是", opts: ["医患关系和谐", "患者认识到疾病的严重性", "患者对于疗效有信心", "治疗方法很方便", "患者认为治疗是有害的"], ans: 4 },
+    { q: "以下哪一条件可以提高患者依从性", opts: ["患者遗忘医生交待的信息", "患者和医生对疾病的看法不一致", "患者对医生护士不满意", "患者感觉自身更为权威", "患者和医生对治疗达成一致"], ans: 4 },
+    { q: "提高病人依从性的方法不包括", opts: ["及时纠正病人的不良行为", "纠正病人对检查和治疗措施的错误认识", "建立融洽的医患关系", "提高病人对医嘱的理解和记忆程度", "教会病人自我监测"], ans: 0 },
+    { q: "开放式提问可让回答者自由发挥，适用于答案较多、较复杂的问题。以下哪项属于开放式提问", opts: ["早晨醒来时会有头痛吗", "跟我谈谈你的头痛吧", "昨天你头痛了吗", "哪些情况会使你的头痛加重或减轻", "你的头痛是在左侧还是在右侧"], ans: 1 },
+    { q: "关于协商治疗方案的步骤，以下不恰当的是", opts: ["提供备选治疗方案", "提出医生推荐的方案", "了解患者倾向的治疗方案", "替代患者做出治疗决策", "协商双方都认可的治疗方案"], ans: 3 },
+    { q: "解释病情时，对于较多的信息可以采用的方法是", opts: ["分成几条分别解释", "尽量多的使用专业术语", "语速快一些，节省时间", "要求患者回家自己查找", "不解释，要求患者依从"], ans: 0 },
+    { q: "医生在从医生涯中，持续感到职业压力与疲累。以下哪一项不是有效的舒缓压力的方法", opts: ["经常锻炼", "保证充足睡眠", "加倍努力追求业务精益求精", "经常与朋友及家人分享感受", "合理安排工作时间"], ans: 2 },
+    { q: "医师应当具备的基本素质不包括", opts: ["良好的职业道德", "熟练的医疗技术水平", "发扬人道主义精神", "履行防病治病、救死扶伤、保护人民健康的神圣职责", "任劳任怨，不计报酬"], ans: 4 },
+    { q: "衡量医务人员功利的依据是", opts: ["对社会集体贡献的大小", "医疗水平的高低", "工作态度好坏", "医患关系的和谐程度", "对医院的创收"], ans: 0 },
+    { q: "关于医院的业绩观，下列正确的是", opts: ["保障医疗安全，提高服务水平", "经济效益至上", "医院规模越大越好", "社会效益是政府负责的事", "保障医务人员安全，提升医院业绩"], ans: 0 },
+    { q: "在诊疗活动中，医患双方应当", opts: ["相互戒备，时刻留存证据", "持对立态度", "互相尊重，维护自身权益时遵守有关法律、法规", "有一方占绝对优势地位", "一切以自身权益为首、为重"], ans: 2 },
+    { q: "最早的医学后果论可以追溯到哪位学者的医学伦理思想，他提出的'有利于病人'、'不伤害病人'原则，具有医学道德终极目的意义，成为医学行为和医学道德规范的出发点", opts: ["康德", "边沁", "亚当·斯密", "希波克拉底", "穆勒"], ans: 3 },
+    { q: "在问诊过程中，以下哪项做法是错误的", opts: ["使病人理解无误", "对病人的不良情绪立即批评", "不打断病人的思路", "不强迫病人回答有关隐私问题", "必须防止暗示性套问"], ans: 1 },
+    { q: "我国医德思想的核心是", opts: ["精益求精", "至意深心", "仁爱精神", "尊师重道", "诚信待人"], ans: 2 },
+    { q: "承担传染病防治职责的机构是", opts: ["医疗机构", "疾病预防控制机构", "保健机构", "康复机构", "计划生育服务机构"], ans: 0 },
+    { q: "临床医学研究中的知情同意原则，主要体现在", opts: ["受试者在没有任何压力和自愿状态下进行", "对无行为能力的受试者应获得监护人的同意", "向受试者提供研究目的、疗效、危险及保护措施的基本信息", "受试者是否接受试验有自由选择的权利", "以上都是"], ans: 4 },
+    { q: "《医疗纠纷预防和处理条例》自何时起施行", opts: ["2017年10月1日", "2018年11月1日", "2018年10月1日", "2018年12月1日", "2018年1月1日"], ans: 2 },
+    { q: "突发公共卫生事件应急工作，应当遵循的方针是", opts: ["预防为主，常备不懈", "统一领导，分级负责", "预防为主，常备不懈，反应及时，措施果断，依靠科学", "统一领导，分级负责，依靠科学，加强合作", "统一领导，分级负责，反应及时，措施果断，依靠科学，加强合作"], ans: 0 },
+    { q: "下列不属于劣药的是", opts: ["擅自添加防腐剂、辅料的", "未标明或者更改有效期、生产批号的", "药品成分含量不符合国家药品标准的", "变质的药品", "超过有效期的"], ans: 3 },
+    { q: "未经批准擅自开办医疗机构行医应承担的行政责任主要是", opts: ["经济补偿", "赔礼道歉", "赔偿责任", "行政处分", "行政处罚"], ans: 4 },
+    { q: "发生重大医疗纠纷的，医疗机构应当按照规定向以下哪个机关部门报告", opts: ["所在地省级以上地方人民政府卫生主管部门", "所在地市级以上地方人民政府卫生主管部门", "所在地县级以上地方人民政府卫生主管部门", "公安机关", "医疗机构行政主管部门"], ans: 2 },
+    { q: "乡村医生在执业活动中，不享有下列哪项权利", opts: ["进行一般医学处置，出具相应的医学证明", "对病人进行无条件临床试验治疗", "参与医学经验交流，参加专业学术团体", "在执业活动中，人格尊严、人身安全不受侵犯", "获取报酬"], ans: 1 },
+    { q: "我国公民在医院就医需要用血时，只需交付的费用包括", opts: ["用于血液的采集、储存、分离、检验等费用", "用于血液的包装、储存、运输费用", "医院为患者输血过程所产生的费用", "血站采供血的费用和血液的价格", "用于血液的储存、检验等费用"], ans: 0 },
+    { q: "患者要求复制病历资料的，以下哪项为医疗机构不正确的处理方式", opts: ["应当提供复制服务", "无偿复印，不应收取工本费", "在复制的病历资料上加盖证明印记", "复制病历资料时，应当有患者或者其近亲属在场", "可以收取工本费，收费标准应当公开"], ans: 1 },
+    { q: "下述行为属于违反《中华人民共和国医师法》的是", opts: ["为彻底治疗，向患者家属夸大患者病情", "医师如实向患者家属介绍病情", "出具与自已执业范围相关的医学证明文件", "出具与执业类别相符的医学证明文件", "向患者宣传卫生保健知识"], ans: 0 },
+    { q: "医疗事故赔偿费用，实行一次性结算，由以下哪个单位支付", opts: ["医疗机构所在地县级卫生主管部门", "医疗机构所在地市级卫生主管部门", "医疗机构所在地省级卫生主管部门", "承担医疗事故责任的医疗机构", "患者的工作单位"], ans: 3 },
+    { q: "A型行为的特点有", opts: ["性格内向", "行为习惯化", "怕伤害别人", "高成就欲望", "善于回避矛盾"], ans: 3 },
+    { q: "正常心理活动和异常心理活动之间", opts: ["有明确的界限", "不能互相转化", "绝对互相转化", "有互相转化的可能", "有明确的界限和不能互相转化"], ans: 3 },
+    { q: "关于精神动力学，以下哪种表述不正确", opts: ["创始人是弗洛伊德", "侧重于对正常心理和行为的分析", "无意识是该理论的核心概念", "认为人类个体的一切行为，都根源于心灵深处的某种欲望或动机", "重视儿童早期经验对后续成长的影响"], ans: 1 },
+    { q: "关于医学心理学的表述，下列不正确的是", opts: ["是一门交叉学科", "只是医学的分支学科", "以维护和促进人类整体健康为目的", "以人作为主要研究和服务对象", "研究医学领域中的心理学问题"], ans: 1 },
+    { q: "患者经常认为'只要治疗就应该有效'，'治疗之后必须要象得病前一样'。这种想法中包含了哪种认知歪曲", opts: ["以偏概全", "绝对化", "情绪推理", "夸大", "贴标签"], ans: 1 },
+    { q: "在以下疾病中，符合心身疾病的是", opts: ["禽流感", "脑外伤", "胃溃疡", "焦虑症", "精神分裂症"], ans: 2 },
+    { q: "艾森克人格问卷需要受试者阅读每一题目，回答'是'或'否'，这一测量方法属于", opts: ["观察法", "晤谈法", "问卷法", "投射法", "行为评估"], ans: 2 },
+    { q: "只打铃而不给狗食物，一段时间后狗不再流口水，这种现象叫做", opts: ["强化", "负强化", "消化", "消退", "泛化"], ans: 3 },
+    { q: "应激生理反应的神经机制主要通过以下哪种途径调节", opts: ["交感神经-肾上腺髓质轴", "丘脑下部-垂体前叶-肾上腺皮质轴", "丘脑下部-垂体后叶轴", "丘脑下部-垂体前叶-甲状腺轴", "丘脑下部-垂体后叶轴和丘脑下部-垂体前叶-甲状腺轴"], ans: 0 },
+    { q: "下列哪个不是系统脱敏法的步骤", opts: ["放松训练", "建立恐怖或焦虑等级", "要求来访者在放松的情况下，按等级层次列出的项目进行想象或实地脱敏", "模仿学习", "放松训练和建立恐怖或焦虑等级"], ans: 3 },
+    { q: "人类辅助生殖技术的目的是", opts: ["商业化", "演进性优生", "有利于未婚男女生儿育女", "使不育夫妇妊娠", "控制人口数量"], ans: 3 },
+    { q: "社会主义市场经济条件下加强医学伦理教育的必要性主要取决于", opts: ["公正分配医药卫生资源的要求", "实现医疗活动道德价值的要求", "协调医际关系的要求", "合理解决卫生劳务分配问题的要求", "正确处理市场经济对医学服务正、负双重效应的要求"], ans: 4 },
+    { q: "关于医学伦理学基本原则的说法，以下正确的是", opts: ["四个基本原则中不伤害原则是最重要的", "在实际应用中，这四个原则只有在不冲突的情况下才有效", "四个基本原则中有利原则是最重要的", "这四个原则中公正原则是最不重要的", "这四个原则之间存在冲突的情况，需要具体判断"], ans: 4 },
+    { q: "执行脑死亡标准的伦理意义应除外", opts: ["弥补传统的死亡标准的不足", "有利于科学地判断死亡", "更体现了对生命的尊重", "直接地达到开展器官移植的目的", "客观上有利于节约卫生资源"], ans: 3 },
+    { q: "能全面反映伦理学概念的是", opts: ["研究职业道德现象的科学", "研究社会现象和理论的科学", "研究社会公共道德的科学", "研究道德现象的科学", "研究家庭道德的科学"], ans: 3 },
+    { q: "医学模式转变对医学伦理学产生的影响是", opts: ["医学更加专业化", "医疗技术复杂化", "研究的范围和深度扩大", "医患关系复杂化", "医学更加专业化和医疗技术复杂化"], ans: 2 },
+    { q: "医学伦理学的核心问题是", opts: ["医务人员之间的关系", "医务人员与患者的关系", "医务人员与社会之间的关系", "医务人员与科学发展之间的关系", "医务人员与患者家属的关系"], ans: 1 },
+    { q: "关于人类胚胎干细胞研究和应用的伦理原则，以下错误的是", opts: ["无论胚胎是不是人，都应该得到尊重", "需先经动物实验等措施，以符合安全和有效的原则", "禁止故意生产、销售、买卖配子和胚胎等，以防止商品化", "配子和胚胎等属于个人财产，允许买卖，符合公平的原则", "与病人或受试者有关的信息应充分告知"], ans: 3 },
+    { q: "医学模式转变在医学伦理方面的重要性是", opts: ["促进了医学思维方式的变革", "提高了社会防治疾病的地位", "实现了在更高层次上对人的健康的全面关怀", "加速了祖国医学的整理和提高", "促进了医师知识结构的现代化"], ans: 2 },
+    { q: "关于实施人类辅助生殖技术的伦理原则，以下不恰当的是", opts: ["知情同意的原则", "控制商品化的原则", "互盲和保密的原则", "维护社会公益的原则", "自愿的原则"], ans: 1 },
+    { q: "解释病情过程中，患者的哪种肢体语言提示我们继续讲述", opts: ["频频看表", "前倾注视", "皱眉叹气", "低头玩手机", "注视无关的人"], ans: 1 },
+    { q: "面对一个愤怒的患者，医生得让这个生气的人知道，你听到、看到并理解他的感受。这样做的目的是什么", opts: ["表达同情心", "表达责任心", "表达同理心", "表达怜悯之心", "表达爱心"], ans: 2 },
+    { q: "在医生不打断的情况下，多数患者叙述完病史大约需要几分钟", opts: ["半分钟", "1分钟", "1分钟半", "2分钟", "3分钟"], ans: 3 },
+    { q: "遇到难缠患者时，下列哪项措施欠妥", opts: ["对于表现极端焦虑或富有侵犯性的患者，应考虑是否需要心理治疗及药物缓解", "在应付难缠患者时，医生应该坚守住底线，不能无原则让步", "医生感到一个人难解决时，应寻求同事或医院的帮助", "为了不影响医院整体工作，准备与患者及家属协商私下解决，答应对方要求", "热情服务，详细查体，委婉地给予合理建议"], ans: 3 },
+    { q: "以下哪项是构成医患交往障碍患者方面的因素", opts: ["医生对患者的关注不够", "医务人员对患者的偏见", "医生对个人功利的过分追求", "患者对医务人员过高的期望值", "医务人员的医德医风问题"], ans: 3 },
+    { q: "轻度智力低下是指智商(韦氏智力量表划分标准)在", opts: ["85~115", "70~85", "55~70", "40~55", "25~40"], ans: 2 },
+    { q: "医生将一个坏消息告知患者并达成治疗共识后，一般在结束此次谈话前留联系方式给患者，表明医生", opts: ["态度好", "希望与患者建立治疗同盟", "不怕患者的麻烦", "医疗技术很高", "担心患者想找自己时找不到"], ans: 1 },
+    { q: "下面哪项技能对于了解患者病情无益", opts: ["开放式问话方式", "打断病人诉说", "了解病人的期望", "倾听病人的叙述", "向知情人或陪诊者询问"], ans: 1 },
+    { q: "医生：'您的肌肉疼痛可以通过锻炼得到缓解。'患者：'这对别人可能有用，但它不适合我。'此时使用哪一种方法继续会谈可能最有效", opts: ["'不会的，对于您一定同样有效。'", "'您这么说就不对了，我可以举出很多成功的例子。'", "'您是不是怕疼啊？这可不像是成年人说的话。'", "'您怎么会这么认为呢？能跟我说说吗？'", "'您如果不信可以问问别的病人。'"], ans: 3 },
+    { q: "医患关系的重要性不包括", opts: ["提高病人依从性", "有利于医患关系模式转变为共同参与型", "造就良好的心理气氛", "提高病人的社交能力", "本身就是一种治疗手段"], ans: 3 },
+    { q: "医疗单位必须作为目标管理的重要内容，衡量和评价一个单位工作好坏的重要标准是", opts: ["医疗技术水平", "管理经营水平", "医院经济效益", "成本核算", "医德医风建设"], ans: 4 },
+    { q: "关于审慎，下述说法中错误的是", opts: ["审慎是一种道德品质", "审慎是一种处世态度", "审慎是一种智慧表现", "审慎与个人性格有关，是与生俱来的", "审慎是以知识技能和冷静客观分析甚至丰富的经验为基础的"], ans: 3 },
+    { q: "下列单位违反法律、行政法规的规定，造成他人感染艾滋病病毒的，应当依法承担民事赔偿责任，但不包括", opts: ["血站", "单采血浆站", "医疗卫生机构", "血液制品生产单位", "卫生行政部门"], ans: 4 },
+    { q: "在下列各项中，对病人不会造成伤害的是", opts: ["医务人员的知识缺乏", "医务人员的行为疏忽和粗枝大叶", "医务人员强迫病人接受检查和治疗", "医务人员为治疗疾病适当地限制或约束病人的自由", "医务人员的技能低下"], ans: 3 },
+    { q: "医德与医术的关系是", opts: ["医术是最重要的，有了精湛医术必然有高尚医德", "医德是最重要的，有了高尚医德必然有精湛医术", "医德与医术密不可分，医学道德以医学技术为依托，医学技术以医学道德为指导", "医德与医术没有关系，医德高尚的不一定是医术精湛的", "医德与医术没有关系，医术精湛的不一定是医德高尚的"], ans: 2 },
+    { q: "在下列医务人员的行为中，不符合有利原则的是", opts: ["与解除病人的疾苦有关", "可能解除病人的疾苦", "使病人受益且产生的副作用很小", "使病人受益，但却给别人造成了较大的伤害", "在人体试验中，可能使受试者暂不得益，但却使社会、后代受益很大"], ans: 3 },
+    { q: "关于医务人员的同情感，以下错误的是", opts: ["它是医务人员发自内心的情感", "它是促使医务人员为患者服务的原始动力", "它是医德情感内容中低层次的情感", "它是责任感的基础", "它比责任感具有较大的稳定性"], ans: 4 },
+    { q: "当医生发现患者住院后被焦躁不安的情绪笼罩时去找患者谈话。在谈话开始时，以下哪项表达是恰当的", opts: ["'我看你有些紧张，不要这样。'", "'你怎么回事，怎么这么紧张？'", "'我看你挺紧张，可不能自己吓唬自己呀！'", "'你有什么担心的，跟我说说。'", "'别瞎想，有什么事告诉我。'"], ans: 3 },
+    { q: "医学科研道德是医学科研工作的灵魂，关于它的意义，下列哪项是错误的", opts: ["是促进医学科学发展的动力", "能保证医学科学研究的正确方向", "是创造优良科研环境的重要保证", "是推进医学研究成果向产业化发展的重要条件", "是取得科研成功的重要前提"], ans: 3 },
+    { q: "医务人员修养的根本途径和方法是", opts: ["坚持学习医德的理论知识", "坚持持之以恒", "坚持自我评价", "追求慎独", "坚持医疗卫生实践"], ans: 4 }
+];
+
+    // ============================================================
+    //  状态变量
+    // ============================================================
+    var currentMode = null;
+    var currentIndex = 0;
+    var userAnswers = new Array(questions.length).fill(null);
+    var markedQuestions = new Array(questions.length).fill(false);
+    var isSubmitted = false;
+    var wrongList = [];
+    var isFromWrongBook = false;
+    var isFromOverview = false;
+    // 练习模式：记录每题是否已经答过一次（用于首次显示反馈）
+    var practiceAnswered = new Array(questions.length).fill(false);
+
+    // ============================================================
+    //  模式切换
+    // ============================================================
+    function selectMode(mode) {
+        currentMode = mode;
+        document.getElementById('modeSelect').classList.add('hidden');
+        document.getElementById('mainArea').classList.remove('hidden');
+
+        userAnswers = new Array(questions.length).fill(null);
+        markedQuestions = new Array(questions.length).fill(false);
+        practiceAnswered = new Array(questions.length).fill(false);
+        isSubmitted = false;
+        wrongList = [];
+        currentIndex = 0;
+        isFromWrongBook = false;
+        isFromOverview = false;
+
+        var badge = document.getElementById('statusBadge');
+        var submitBtn = document.getElementById('submitBtn');
+        var practiceOverviewBtn = document.getElementById('practiceOverviewBtn');
+        var backOverviewBtn = document.getElementById('backToOverviewBtn');
+
+        if (mode === 'exam') {
+            badge.textContent = '📝 考试模式';
+            badge.className = 'badge exam-badge';
+            submitBtn.classList.remove('hidden');
+            practiceOverviewBtn.classList.add('hidden');
+            backOverviewBtn.classList.add('hidden');
+        } else {
+            badge.textContent = '⚡ 练习模式';
+            badge.className = 'badge practice-badge';
+            submitBtn.classList.add('hidden');
+            practiceOverviewBtn.classList.remove('hidden');
+            backOverviewBtn.classList.add('hidden');
+        }
+
+        document.getElementById('totalNum').textContent = questions.length;
+        document.getElementById('resultArea').classList.add('hidden');
+        document.getElementById('examArea').classList.remove('hidden');
+        document.getElementById('overviewArea').classList.add('hidden');
+        document.getElementById('practiceOverviewArea').classList.add('hidden');
+        document.getElementById('wrongBookArea').classList.add('hidden');
+
+        renderQuestion();
+        updateStats();
+    }
+
+    function goHome() {
+        if (!confirm('确定要退出当前模式吗？进度将丢失。')) return;
+        document.getElementById('mainArea').classList.add('hidden');
+        document.getElementById('modeSelect').classList.remove('hidden');
+        currentMode = null;
+    }
+
+    // ============================================================
+    //  渲染题目
+    // ============================================================
+    function renderQuestion() {
+        var q = questions[currentIndex];
+        document.getElementById('qNumber').textContent = '第 ' + (currentIndex + 1) + ' 题（共 ' + questions.length + ' 题）';
+        document.getElementById('qText').textContent = q.q;
+        document.getElementById('currentNum').textContent = currentIndex + 1;
+
+        // 标记按钮状态
+        var markBtn = document.getElementById('markBtn');
+        if (markedQuestions[currentIndex]) {
+            markBtn.textContent = '⭐';
+            markBtn.classList.add('marked');
+        } else {
+            markBtn.textContent = '☆';
+            markBtn.classList.remove('marked');
+        }
+
+        // 返回错题集按钮
+        var backWrongBtn = document.getElementById('backToWrongBtn');
+        if (isFromWrongBook && isSubmitted && currentMode === 'exam') {
+            backWrongBtn.classList.remove('hidden');
+        } else {
+            backWrongBtn.classList.add('hidden');
+        }
+
+        // 返回总览按钮
+        var backOverviewBtn = document.getElementById('backToOverviewBtn');
+        if (isFromOverview && isSubmitted && currentMode === 'exam') {
+            backOverviewBtn.classList.remove('hidden');
+        } else {
+            backOverviewBtn.classList.add('hidden');
+        }
+
+        var container = document.getElementById('optionsContainer');
+        container.innerHTML = '';
+
+        var selectedIdx = userAnswers[currentIndex];
+        var isPracticeMode = (currentMode === 'practice');
+
+        q.opts.forEach(function(opt, idx) {
+            var div = document.createElement('div');
+            div.className = 'option';
+
+            // 考试模式：交卷后禁用
+            if (currentMode === 'exam' && isSubmitted) {
+                div.classList.add('disabled');
+            }
+
+            // ⭐ 练习模式：永不禁用选项，用户可以反复点击不同选项
+            // 但已选的选项高亮显示
+            if (selectedIdx !== null && selectedIdx === idx) {
+                div.classList.add('selected');
+            }
+
+            // ⭐ 练习模式：如果当前题已经答过一次（practiceAnswered为true），显示反馈标记
+            if (isPracticeMode && practiceAnswered[currentIndex]) {
+                if (idx === q.ans) {
+                    div.classList.add('practice-correct');
+                    div.innerHTML = String.fromCharCode(65 + idx) + '. ' + opt + ' <span class="result-icon">✅</span>';
+                } else if (selectedIdx === idx && idx !== q.ans) {
+                    div.classList.add('practice-wrong');
+                    div.innerHTML = String.fromCharCode(65 + idx) + '. ' + opt + ' <span class="result-icon">❌</span>';
+                } else {
+                    div.textContent = String.fromCharCode(65 + idx) + '. ' + opt;
+                }
+            } else {
+                div.textContent = String.fromCharCode(65 + idx) + '. ' + opt;
+            }
+
+            div.onclick = function() { selectOption(idx); };
+            container.appendChild(div);
+        });
+
+        // 考试模式交卷后显示对错
+        if (currentMode === 'exam' && isSubmitted) {
+            showRevealOnCurrent();
+        }
+
+        updateButtons();
+        updateStats();
+    }
+
+    // ============================================================
+    //  选择选项
+    // ============================================================
+    function selectOption(idx) {
+        // 考试模式
+        if (currentMode === 'exam') {
+            if (isSubmitted) return;
+            userAnswers[currentIndex] = idx;
+            renderQuestion();
+            updateStats();
+            return;
+        }
+
+        // ⭐ 练习模式：允许反复选择，每次都重新判断
+        if (currentMode === 'practice') {
+            var q = questions[currentIndex];
+            var oldAnswer = userAnswers[currentIndex];
+            
+            // 更新答案
+            userAnswers[currentIndex] = idx;
+            // 标记已答（用于显示反馈标记）
+            practiceAnswered[currentIndex] = true;
+
+            // 更新错题列表
+            // 如果当前答案正确，从错题列表中移除
+            if (idx === q.ans) {
+                wrongList = wrongList.filter(function(item) { return item.index !== currentIndex; });
+            } else {
+                // 如果答错，添加到错题列表（如果不存在的话）
+                var exists = wrongList.some(function(item) { return item.index === currentIndex; });
+                if (!exists) {
+                    wrongList.push({ index: currentIndex, userAns: idx });
+                } else {
+                    // 如果已存在，更新答案
+                    for (var i = 0; i < wrongList.length; i++) {
+                        if (wrongList[i].index === currentIndex) {
+                            wrongList[i].userAns = idx;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            renderQuestion();
+            updateStats();
+        }
+    }
+
+    // ============================================================
+    //  导航
+    // ============================================================
+    function nextQuestion() {
+        if (currentIndex < questions.length - 1) {
+            currentIndex++;
+            renderQuestion();
+        }
+    }
+
+    function prevQuestion() {
+        if (currentIndex > 0) {
+            currentIndex--;
+            renderQuestion();
+        }
+    }
+
+    function updateButtons() {
+        document.getElementById('prevBtn').style.visibility = currentIndex === 0 ? 'hidden' : 'visible';
+        document.getElementById('nextBtn').style.visibility = currentIndex === questions.length - 1 ? 'hidden' : 'visible';
+    }
+
+    function updateStats() {
+        var answered = userAnswers.filter(function(a) { return a !== null; }).length;
+        var marked = markedQuestions.filter(function(m) { return m; }).length;
+        document.getElementById('answeredCount').textContent = answered;
+        document.getElementById('markedCount').textContent = marked;
+        var progress = (answered / questions.length) * 100;
+        document.getElementById('progressFill').style.width = progress + '%';
+    }
+
+    // ============================================================
+    //  标记功能（考试和练习模式都可用）
+    // ============================================================
+    function toggleMark() {
+        if (currentMode === 'exam' && isSubmitted) return;
+        markedQuestions[currentIndex] = !markedQuestions[currentIndex];
+        renderQuestion();
+        updateStats();
+    }
+
+    // ============================================================
+    //  考试模式 - 交卷显示对错
+    // ============================================================
+    function showRevealOnCurrent() {
+        var container = document.getElementById('optionsContainer');
+        var q = questions[currentIndex];
+        var userAns = userAnswers[currentIndex];
+        var opts = container.querySelectorAll('.option');
+
+        opts.forEach(function(el, idx) {
+            var text = String.fromCharCode(65 + idx) + '. ' + q.opts[idx];
+            el.innerHTML = text;
+            el.classList.remove('correct-reveal', 'wrong-reveal', 'missed-reveal');
+            el.classList.add('disabled');
+
+            if (idx === q.ans) {
+                el.classList.add('correct-reveal');
+                el.innerHTML += ' <span class="mark">✅</span>';
+            } else if (userAns !== null && idx === userAns && idx !== q.ans) {
+                el.classList.add('wrong-reveal');
+                el.innerHTML += ' <span class="mark">❌</span>';
+            }
+            if (userAns === null) {
+                el.classList.add('missed-reveal');
+            }
+        });
+    }
+
+    // ============================================================
+    //  考试模式 - 交卷
+    // ============================================================
+    function submitExam() {
+        if (currentMode !== 'exam') return;
+        var answered = userAnswers.filter(function(a) { return a !== null; }).length;
+        if (answered < questions.length) {
+            if (!confirm('你还有 ' + (questions.length - answered) + ' 道题未作答，确定要交卷吗？')) {
+                return;
+            }
+        }
+
+        isSubmitted = true;
+        var correct = 0;
+        var wrong = 0;
+        var unanswered = 0;
+        wrongList = [];
+
+        for (var i = 0; i < questions.length; i++) {
+            var q = questions[i];
+            var userAns = userAnswers[i];
+            if (userAns === null) {
+                unanswered++;
+                wrongList.push({ index: i, userAns: -1 });
+            } else if (userAns === q.ans) {
+                correct++;
+            } else {
+                wrong++;
+                wrongList.push({ index: i, userAns: userAns });
+            }
+        }
+
+        var marked = markedQuestions.filter(function(m) { return m; }).length;
+
+        document.getElementById('correctCountDisplay').textContent = correct;
+        document.getElementById('wrongCountDisplay').textContent = wrong;
+        document.getElementById('unansweredCountDisplay').textContent = unanswered;
+        document.getElementById('markedCountDisplay').textContent = marked;
+        document.getElementById('scoreDisplay').innerHTML = Math.round((correct / questions.length) * 100) + '<span> / 100</span>';
+        document.getElementById('statusBadge').textContent = '✅ 已交卷';
+        document.getElementById('statusBadge').className = 'badge done-badge';
+
+        document.getElementById('examArea').classList.add('hidden');
+        document.getElementById('resultArea').classList.remove('hidden');
+
+        document.getElementById('practiceOverviewBtn').classList.add('hidden');
+    }
+
+    // ============================================================
+    //  回到试卷
+    // ============================================================
+    function backToExam() {
+        isFromWrongBook = false;
+        isFromOverview = false;
+        document.getElementById('resultArea').classList.add('hidden');
+        document.getElementById('overviewArea').classList.add('hidden');
+        document.getElementById('practiceOverviewArea').classList.add('hidden');
+        document.getElementById('examArea').classList.remove('hidden');
+        renderQuestion();
+    }
+
+    // ============================================================
+    //  考试模式 - 题号总览
+    // ============================================================
+    function showOverview() {
+        var area = document.getElementById('overviewArea');
+        var grid = document.getElementById('overviewGrid');
+        grid.innerHTML = '';
+
+        for (var i = 0; i < questions.length; i++) {
+            var div = document.createElement('div');
+            div.className = 'overview-item';
+            div.textContent = i + 1;
+
+            var userAns = userAnswers[i];
+            var q = questions[i];
+
+            if (userAns === null) {
+                div.classList.add('unanswered');
+            } else if (userAns === q.ans) {
+                div.classList.add('correct');
+            } else {
+                div.classList.add('wrong');
+            }
+
+            if (markedQuestions[i]) {
+                var star = document.createElement('span');
+                star.className = 'star-mark';
+                star.textContent = '⭐';
+                div.appendChild(star);
+            }
+
+            div.onclick = function(idx) {
+                return function() {
+                    jumpToQuestionFromOverview(idx);
+                };
+            }(i);
+
+            grid.appendChild(div);
+        }
+
+        area.classList.remove('hidden');
+        document.getElementById('wrongBookArea').classList.add('hidden');
+        document.getElementById('practiceOverviewArea').classList.add('hidden');
+    }
+
+    function closeOverview() {
+        document.getElementById('overviewArea').classList.add('hidden');
+    }
+
+    function jumpToQuestionFromOverview(index) {
+        isFromOverview = true;
+        isFromWrongBook = false;
+        closeOverview();
+        document.getElementById('resultArea').classList.add('hidden');
+        document.getElementById('examArea').classList.remove('hidden');
+        currentIndex = index;
+        renderQuestion();
+        document.getElementById('examArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        updateStats();
+    }
+
+    function backToOverview() {
+        isFromOverview = false;
+        document.getElementById('examArea').classList.add('hidden');
+        document.getElementById('resultArea').classList.remove('hidden');
+        document.getElementById('wrongBookArea').classList.add('hidden');
+        document.getElementById('practiceOverviewArea').classList.add('hidden');
+        showOverview();
+        document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // ============================================================
+    //  练习模式 - 题号总览
+    // ============================================================
+    function showPracticeOverview() {
+        document.getElementById('resultArea').classList.remove('hidden');
+        var area = document.getElementById('practiceOverviewArea');
+        var grid = document.getElementById('practiceOverviewGrid');
+        grid.innerHTML = '';
+
+        for (var i = 0; i < questions.length; i++) {
+            var div = document.createElement('div');
+            div.className = 'overview-item';
+            div.textContent = i + 1;
+
+            var userAns = userAnswers[i];
+            var q = questions[i];
+
+            if (userAns === null) {
+                div.classList.add('unanswered');
+            } else if (userAns === q.ans) {
+                div.classList.add('correct');
+            } else {
+                div.classList.add('wrong');
+            }
+
+            if (markedQuestions[i]) {
+                var star = document.createElement('span');
+                star.className = 'star-mark';
+                star.textContent = '⭐';
+                div.appendChild(star);
+            }
+
+            div.onclick = function(idx) {
+                return function() {
+                    jumpToQuestionFromPracticeOverview(idx);
+                };
+            }(i);
+
+            grid.appendChild(div);
+        }
+
+        document.getElementById('examArea').classList.add('hidden');
+        document.getElementById('overviewArea').classList.add('hidden');
+        document.getElementById('wrongBookArea').classList.add('hidden');
+        area.classList.remove('hidden');
+
+        document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function closePracticeOverview() {
+        document.getElementById('practiceOverviewArea').classList.add('hidden');
+        document.getElementById('examArea').classList.remove('hidden');
+        document.getElementById('resultArea').classList.add('hidden');
+        renderQuestion();
+    }
+
+    function jumpToQuestionFromPracticeOverview(index) {
+        document.getElementById('practiceOverviewArea').classList.add('hidden');
+        document.getElementById('resultArea').classList.add('hidden');
+        document.getElementById('examArea').classList.remove('hidden');
+        currentIndex = index;
+        renderQuestion();
+        document.getElementById('examArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        updateStats();
+
+        var practiceBtn = document.getElementById('practiceOverviewBtn');
+        if (practiceBtn.classList.contains('hidden')) {
+            practiceBtn.classList.remove('hidden');
+        }
+    }
+
+    // ============================================================
+    //  错题集
+    // ============================================================
+    function showWrongBook() {
+        var area = document.getElementById('wrongBookArea');
+        var container = document.getElementById('wrongListContainer');
+        document.getElementById('overviewArea').classList.add('hidden');
+        document.getElementById('practiceOverviewArea').classList.add('hidden');
+
+        if (wrongList.length === 0) {
+            container.innerHTML = '<p style="text-align:center;color:#27ae60;font-size:18px;">🎉 太棒了！全部答对，没有错题！</p>';
+        } else {
+            var html = '<p>共 ' + wrongList.length + ' 道错题（点击任意错题跳转回顾）：</p>';
+            for (var i = 0; i < wrongList.length; i++) {
+                var item = wrongList[i];
+                var q = questions[item.index];
+                var letter = String.fromCharCode(65 + q.ans);
+                var yourLetter = item.userAns === -1 ? '（未作答）' : String.fromCharCode(65 + item.userAns);
+                var qText = q.q.length > 50 ? q.q.substring(0, 50) + '...' : q.q;
+                var starMark = markedQuestions[item.index] ? ' ⭐' : '';
+                html += '<div class="wrong-item" onclick="jumpToQuestion(' + item.index + ')">';
+                html += '<div class="q">📌 ' + (item.index + 1) + '. ' + qText + starMark + '</div>';
+                html += '<div>你的答案：<span class="your-ans">' + yourLetter + '</span> &nbsp;|&nbsp; 正确答案：<span class="correct-ans">' + letter + '</span></div>';
+                html += '<div class="jump-hint">👆 点击跳转到此题</div>';
+                html += '</div>';
+            }
+            container.innerHTML = html;
+        }
+
+        area.classList.remove('hidden');
+    }
+
+    function jumpToQuestion(index) {
+        isFromWrongBook = true;
+        isFromOverview = false;
+        document.getElementById('wrongBookArea').classList.add('hidden');
+        document.getElementById('overviewArea').classList.add('hidden');
+        document.getElementById('practiceOverviewArea').classList.add('hidden');
+        document.getElementById('resultArea').classList.add('hidden');
+        document.getElementById('examArea').classList.remove('hidden');
+        currentIndex = index;
+        renderQuestion();
+        document.getElementById('examArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        updateStats();
+    }
+
+    function backToWrongBook() {
+        isFromWrongBook = false;
+        document.getElementById('examArea').classList.add('hidden');
+        document.getElementById('resultArea').classList.remove('hidden');
+        document.getElementById('overviewArea').classList.add('hidden');
+        document.getElementById('practiceOverviewArea').classList.add('hidden');
+        showWrongBook();
+        document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function closeWrongBook() {
+        document.getElementById('wrongBookArea').classList.add('hidden');
+    }
+
+    // ============================================================
+    //  重置
+    // ============================================================
+    function resetExam() {
+        var modeName = currentMode === 'exam' ? '考试' : '练习';
+        if (!confirm('确定要重新' + modeName + '吗？当前进度将丢失。')) return;
+
+        userAnswers = new Array(questions.length).fill(null);
+        markedQuestions = new Array(questions.length).fill(false);
+        practiceAnswered = new Array(questions.length).fill(false);
+        isSubmitted = false;
+        wrongList = [];
+        currentIndex = 0;
+        isFromWrongBook = false;
+        isFromOverview = false;
+
+        var badge = document.getElementById('statusBadge');
+        var practiceOverviewBtn = document.getElementById('practiceOverviewBtn');
+        var submitBtn = document.getElementById('submitBtn');
+
+        if (currentMode === 'exam') {
+            badge.textContent = '📝 考试模式';
+            badge.className = 'badge exam-badge';
+            practiceOverviewBtn.classList.add('hidden');
+            submitBtn.classList.remove('hidden');
+        } else {
+            badge.textContent = '⚡ 练习模式';
+            badge.className = 'badge practice-badge';
+            practiceOverviewBtn.classList.remove('hidden');
+            submitBtn.classList.add('hidden');
+        }
+
+        document.getElementById('resultArea').classList.add('hidden');
+        document.getElementById('examArea').classList.remove('hidden');
+        document.getElementById('overviewArea').classList.add('hidden');
+        document.getElementById('practiceOverviewArea').classList.add('hidden');
+        document.getElementById('wrongBookArea').classList.add('hidden');
+        renderQuestion();
+        updateStats();
+    }
+
+    // 键盘快捷键
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'ArrowLeft') prevQuestion();
+        if (e.key === 'ArrowRight') nextQuestion();
+    });
+
+    // 启动
+    function init() {
+        document.getElementById('modeSelect').classList.remove('hidden');
+        document.getElementById('mainArea').classList.add('hidden');
+    }
+    init();
+</script>
+
+</body>
+</html>

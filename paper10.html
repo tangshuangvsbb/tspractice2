@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>重庆市医师定期考核复习工具 - 双模式</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            max-width: 750px;
+            margin: 30px auto;
+            padding: 20px;
+            background: #f5f7fa;
+            color: #333;
+        }
+        .container {
+            background: #fff;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-top: 0;
+            font-size: 26px;
+        }
+
+        /* ===== 模式选择 ===== */
+        #modeSelect {
+            text-align: center;
+            padding: 30px 0;
+        }
+        #modeSelect h2 {
+            font-size: 20px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .mode-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .mode-btn {
+            padding: 20px 40px;
+            border: 3px solid #dee2e6;
+            border-radius: 16px;
+            background: #fff;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 160px;
+        }
+        .mode-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+        }
+        .mode-btn .sub {
+            display: block;
+            font-size: 13px;
+            font-weight: 400;
+            color: #7f8c8d;
+            margin-top: 6px;
+        }
+        .mode-btn.exam-mode {
+            border-color: #3498db;
+            background: #ebf5fb;
+        }
+        .mode-btn.exam-mode:hover {
+            border-color: #2980b9;
+            background: #d6eaf8;
+        }
+        .mode-btn.practice-mode {
+            border-color: #e67e22;
+            background: #fef5e7;
+        }
+        .mode-btn.practice-mode:hover {
+            border-color: #d35400;
+            background: #fdebd0;
+        }
+
+        /* ===== 顶部信息栏 ===== */
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #eef2f7;
+            padding: 12px 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .header-bar .info {
+            font-size: 14px;
+            color: #555;
+        }
+        .header-bar .info span {
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        .badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .badge.exam-badge {
+            background: #3498db;
+            color: #fff;
+        }
+        .badge.practice-badge {
+            background: #e67e22;
+            color: #fff;
+        }
+        .badge.done-badge {
+            background: #27ae60;
+            color: #fff;
+        }
+
+        /* ===== 题目区域 ===== */
+        .question-number {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 6px;
+        }
+        .question-text {
+            font-size: 18px;
+            font-weight: 600;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .option {
+            display: block;
+            padding: 14px 18px;
+            margin-bottom: 10px;
+            border: 2px solid #e0e4e8;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #fafbfc;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+        .option:hover:not(.disabled) {
+            border-color: #3498db;
+            background: #edf3fa;
+        }
+        .option.selected {
+            border-color: #3498db;
+            background: #d6e8f7;
+        }
+        .option.practice-correct {
+            border-color: #27ae60;
+            background: #e8f8ef;
+        }
+        .option.practice-wrong {
+            border-color: #e74c3c;
+            background: #fde8e8;
+        }
+        .option.correct-reveal {
+            border-color: #27ae60;
+            background: #e8f8ef;
+        }
+        .option.wrong-reveal {
+            border-color: #e74c3c;
+            background: #fde8e8;
+        }
+        .option.missed-reveal {
+            border-color: #e74c3c;
+            background: #fde8e8;
+        }
+        .option.disabled {
+            cursor: default;
+        }
+        .option .mark {
+            float: right;
+            font-weight: 700;
+            font-size: 18px;
+        }
+        .option .result-icon {
+            float: right;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .mark-btn {
+            background: none;
+            border: 2px solid #bdc3c7;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            color: #bdc3c7;
+        }
+        .mark-btn:hover {
+            transform: scale(1.1);
+        }
+        .mark-btn.marked {
+            border-color: #f39c12;
+            color: #f39c12;
+            background: #fef9e7;
+        }
+        .mark-btn:active {
+            transform: scale(0.9);
+        }
+
+        .nav-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 25px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .nav-area .btn-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        button {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .btn-prev {
+            background: #ecf0f1;
+            color: #2c3e50;
+        }
+        .btn-prev:hover { background: #dde1e3; }
+        .btn-next {
+            background: #3498db;
+            color: #fff;
+        }
+        .btn-next:hover { background: #2980b9; }
+        .btn-submit {
+            background: #27ae60;
+            color: #fff;
+            font-size: 16px;
+            padding: 12px 36px;
+        }
+        .btn-submit:hover { background: #1e8449; }
+        .btn-reset {
+            background: #e67e22;
+            color: #fff;
+        }
+        .btn-reset:hover { background: #d35400; }
+        .btn-wrong {
+            background: #e74c3c;
+            color: #fff;
+        }
+        .btn-wrong:hover { background: #c0392b; }
+        .btn-back {
+            background: #95a5a6;
+            color: #fff;
+        }
+        .btn-back:hover { background: #7f8c8d; }
+        .btn-back-wrong {
+            background: #8e44ad;
+            color: #fff;
+        }
+        .btn-back-wrong:hover { background: #6c3483; }
+        .btn-overview {
+            background: #1abc9c;
+            color: #fff;
+        }
+        .btn-overview:hover { background: #16a085; }
+        .btn-back-overview {
+            background: #2ecc71;
+            color: #fff;
+            font-size: 13px;
+            padding: 10px 18px;
+        }
+        .btn-back-overview:hover { background: #27ae60; }
+        .btn-home {
+            background: #34495e;
+            color: #fff;
+        }
+        .btn-home:hover { background: #2c3e50; }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #ecf0f1;
+            border-radius: 2px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+        .progress-bar .fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        .result-box {
+            text-align: center;
+            padding: 20px 0;
+        }
+        .result-box .score {
+            font-size: 64px;
+            font-weight: 800;
+            color: #2c3e50;
+        }
+        .result-box .score span {
+            font-size: 28px;
+            color: #7f8c8d;
+        }
+        .result-box .detail {
+            font-size: 16px;
+            color: #555;
+            margin: 10px 0 20px;
+        }
+        .result-box .detail .green { color: #27ae60; font-weight: 700; }
+        .result-box .detail .red { color: #e74c3c; font-weight: 700; }
+        .result-box .detail .orange { color: #f39c12; font-weight: 700; }
+
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+            gap: 8px;
+            margin: 20px 0;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+        }
+        .overview-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid #dee2e6;
+            background: #fff;
+            color: #2c3e50;
+            position: relative;
+        }
+        .overview-item:hover {
+            transform: scale(1.08);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+        }
+        .overview-item.correct {
+            border-color: #27ae60;
+            background: #e8f8ef;
+            color: #27ae60;
+        }
+        .overview-item.wrong {
+            border-color: #e74c3c;
+            background: #fde8e8;
+            color: #e74c3c;
+        }
+        .overview-item.unanswered {
+            border-color: #bdc3c7;
+            background: #f4f6f7;
+            color: #95a5a6;
+        }
+        .overview-item .star-mark {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            font-size: 14px;
+            color: #f39c12;
+        }
+
+        .wrong-list {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .wrong-item {
+            border-bottom: 1px solid #eee;
+            padding: 14px 0;
+            cursor: pointer;
+            transition: background 0.15s ease;
+            border-radius: 8px;
+            padding-left: 12px;
+            padding-right: 12px;
+        }
+        .wrong-item:hover {
+            background: #f0f3f8;
+        }
+        .wrong-item .q {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .wrong-item .your-ans { color: #e74c3c; }
+        .wrong-item .correct-ans { color: #27ae60; }
+        .wrong-item .jump-hint {
+            font-size: 12px;
+            color: #8e44ad;
+            font-weight: 500;
+        }
+
+        .hidden { display: none; }
+
+        @media (max-width: 500px) {
+            .container { padding: 16px; }
+            .question-text { font-size: 16px; }
+            .option { font-size: 14px; padding: 12px 14px; }
+            .nav-area .btn-group button { padding: 8px 16px; font-size: 13px; }
+            .result-box .score { font-size: 44px; }
+            .overview-grid { grid-template-columns: repeat(auto-fill, minmax(38px, 1fr)); gap: 6px; }
+            .overview-item { width: 38px; height: 38px; font-size: 13px; }
+            .mode-btn { padding: 14px 24px; font-size: 16px; min-width: 120px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="app">
+    <h1>📝 重医附三院医师定考复习工具-第十套卷（临床）</h1>
+
+    <!-- ===== 模式选择 ===== -->
+    <div id="modeSelect">
+        <h2>选择模式</h2>
+        <div class="mode-buttons">
+            <button class="mode-btn exam-mode" onclick="selectMode('exam')">
+                📝 考试模式
+                <span class="sub">全部答完再交卷，统一判分</span>
+            </button>
+            <button class="mode-btn practice-mode" onclick="selectMode('practice')">
+                ⚡ 练习模式
+                <span class="sub">每选一题立刻显示正确答案</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== 主界面 ===== -->
+    <div id="mainArea" class="hidden">
+
+        <div class="header-bar" id="headerBar">
+            <div class="info">
+                📌 <span id="currentNum">1</span>/<span id="totalNum">0</span>
+                &nbsp;&nbsp;|&nbsp;&nbsp;✅ 已答: <span id="answeredCount">0</span>
+                &nbsp;&nbsp;|&nbsp;&nbsp;⭐ 标记: <span id="markedCount">0</span>
+            </div>
+            <div>
+                <span class="badge" id="statusBadge">📝 考试模式</span>
+                <button class="btn-home" onclick="goHome()" style="font-size:12px;padding:4px 12px;margin-left:8px;">🏠 返回首页</button>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="fill" id="progressFill" style="width:0%"></div>
+        </div>
+
+        <!-- ===== 答题区域 ===== -->
+        <div id="examArea">
+            <div class="top-bar">
+                <div class="question-number" id="qNumber">第 1 题</div>
+                <div>
+                    <button class="mark-btn" id="markBtn" onclick="toggleMark()" title="标记此题">☆</button>
+                    <button class="btn-back-wrong hidden" id="backToWrongBtn" onclick="backToWrongBook()" style="font-size:13px;padding:6px 16px;margin-left:6px;">📕 返回错题集</button>
+                </div>
+            </div>
+            <div class="question-text" id="qText">加载题目中...</div>
+            <div id="optionsContainer"></div>
+
+            <div class="nav-area">
+                <div class="btn-group">
+                    <button class="btn-prev" id="prevBtn" onclick="prevQuestion()">⬅ 上一题</button>
+                    <button class="btn-next" id="nextBtn" onclick="nextQuestion()">下一题 ➡</button>
+                    <button class="btn-back-overview hidden" id="backToOverviewBtn" onclick="backToOverview()">📊 返回总览</button>
+                    <button class="btn-overview hidden" id="practiceOverviewBtn" onclick="showPracticeOverview()">📊 题号总览</button>
+                </div>
+                <button class="btn-submit hidden" id="submitBtn" onclick="submitExam()">📊 交卷</button>
+            </div>
+        </div>
+
+        <!-- ===== 结果区域 ===== -->
+        <div id="resultArea" class="hidden">
+            <div class="result-box">
+                <div class="score" id="scoreDisplay">0<span> / 100</span></div>
+                <div class="detail">
+                    正确 <span class="green" id="correctCountDisplay">0</span> 题 &nbsp;·&nbsp;
+                    错误 <span class="red" id="wrongCountDisplay">0</span> 题 &nbsp;·&nbsp;
+                    未答 <span class="orange" id="unansweredCountDisplay">0</span> 题 &nbsp;·&nbsp;
+                    ⭐ 标记 <span class="orange" id="markedCountDisplay">0</span> 题
+                </div>
+                <div style="margin-top:10px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+                    <button class="btn-overview" onclick="showOverview()">📊 题号总览</button>
+                    <button class="btn-wrong" onclick="showWrongBook()">📕 查看错题集</button>
+                    <button class="btn-reset" onclick="resetExam()">🔄 重新考试</button>
+                    <button class="btn-back" onclick="backToExam()">📝 回到试卷</button>
+                </div>
+            </div>
+
+            <!-- 题号总览（考试模式） -->
+            <div id="overviewArea" class="hidden">
+                <h3>📊 题号总览 <span style="font-size:14px;font-weight:400;color:#7f8c8d;">（点击题号跳转）</span></h3>
+                <div class="overview-grid" id="overviewGrid"></div>
+                <button class="btn-back" onclick="closeOverview()" style="margin-top:12px;">关闭总览</button>
+            </div>
+
+            <!-- 练习模式总览 -->
+            <div id="practiceOverviewArea" class="hidden">
+                <h3>📊 练习进度 <span style="font-size:14px;font-weight:400;color:#7f8c8d;">（点击题号跳转）</span></h3>
+                <div class="overview-grid" id="practiceOverviewGrid"></div>
+                <button class="btn-back" onclick="closePracticeOverview()" style="margin-top:12px;">关闭总览</button>
+            </div>
+
+            <!-- 错题集 -->
+            <div id="wrongBookArea" class="hidden wrong-list">
+                <h3>📕 错题集 <span style="font-size:14px;font-weight:400;color:#7f8c8d;">（点击任意错题跳转回顾）</span></h3>
+                <div id="wrongListContainer"></div>
+                <button class="btn-back" onclick="closeWrongBook()" style="margin-top:12px;">关闭总览</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ============================================================
+    //  题库数据（1-10题）
+    // ============================================================
+       const questions = [
+    { q: "慢性支气管炎发展成阻塞性肺气肿的过程中最先发生的病理改变是", opts: ["肺泡膨胀", "细支气管不完全阻塞", "肺泡壁弹性减退", "肺小动脉痉挛", "肺纤维化"], ans: 1 },
+    { q: "关于慢性肾衰竭时的心律失常，下列哪项是错误的", opts: ["可由高钾血症引起", "可因低钾血症引起", "可由高钙血症引起", "可有窦房传导阻滞", "可有室性心动过速"], ans: 2 },
+    { q: "关于新月体性肾炎肾脏病理改变，下列描述正确的是", opts: ["Ⅰ型表现为IgG及C3呈颗粒样沉积于毛细血管壁", "Ⅰ型表现为IgG及C3呈线条样沉积于毛细血管壁", "Ⅱ型表现为IgA及C3呈颗粒样沉积于系膜区和毛细血管壁", "Ⅱ型表现为IgM呈线条状沉积于毛细血管壁", "Ⅲ型免疫病理表现为'满堂亮'"], ans: 1 },
+    { q: "早期胃癌的肉眼形态中不包括", opts: ["表浅隆起型", "表浅凹陷型", "凹陷型", "隆起型", "浸润型"], ans: 4 },
+    { q: "以下哪项不符合休克的诊断标准", opts: ["脉细数，<100次/分", "意识异常", "血压100mmHg", "末梢循环灌注不足", "有诱发休克的病因"], ans: 2 },
+    { q: "关于慢粒白血病，下述错误的是", opts: ["晚期骨髓内纤维组织增多", "中性粒细胞碱性磷酸酶慢性期增多，急性期下降", "骨髓中原始细胞<10%，而以中晚幼粒细胞为主", "血清维生素B2浓度增高", "周围血中中性粒细胞百分数增多"], ans: 1 },
+    { q: "正常人铁吸收率最高的部位是", opts: ["胃", "十二指肠及空肠上部", "空肠", "回肠", "回盲部"], ans: 1 },
+    { q: "无症状心肌缺血临床诊断较可靠的是", opts: ["血脂高", "肥胖", "吸烟", "早发冠心病家族史", "心电图有典型缺血型ST-T改变"], ans: 4 },
+    { q: "大多数原发性肝癌病人的首发症状为", opts: ["肝区疼痛", "发热", "黄疸", "消瘦", "贫血"], ans: 0 },
+    { q: "下列抗体中是Graves病直接致病原因的是", opts: ["TRAb", "TSBAb", "TGI", "TPOAb", "TgAb"], ans: 0 },
+    { q: "大咯血患者发生窒息，最关键的抢救措施为", opts: ["注射呼吸兴奋剂", "立即吸氧", "立即人工呼吸", "立即清除血凝块", "立即气管切开"], ans: 3 },
+    { q: "一般而言短期大量饮酒可发生", opts: ["酒精性肝炎", "酒精性肝硬化", "药物性肝损害", "急性胃炎", "酒精性脂肪肝"], ans: 0 },
+    { q: "诊断肝性脑病最有意义的体征是", opts: ["肌张力增高", "腱反射亢进", "踝阵挛阳性", "扑翼样震颤", "巴彬斯基（Babinski）征阳性"], ans: 3 },
+    { q: "尿蛋白在3+以上，应考虑以下哪种疾病", opts: ["肾小球疾病", "肾小管疾病", "肾血管疾病", "肾间质疾病", "尿路感染"], ans: 0 },
+    { q: "由核黄疸造成的脑性瘫痪常表现为", opts: ["痉挛型", "手足徐动型", "共济失调型", "震颤型", "弛缓型"], ans: 1 },
+    { q: "鼻翼部分全层缺损修复，最佳的材料是", opts: ["硅橡胶", "唇黏膜瓣", "耳廓复合组织", "自体肋软骨", "鼻中隔软骨"], ans: 2 },
+    { q: "有关唇部畸形的修复原则，下列哪项不正确", opts: ["供区组织部位的选择应遵守就近取材的原则", "从美学角度看，上唇越长越好", "口腔属于污染环境，术中及术后均应加强抗感染措施", "严重的下唇外翻或唇颊组织缺损畸形，日久常导致牙齿及牙槽骨的发育畸形", "唇缺损的宽度不超过全宽度的1/4~1/3，一般均可直接分层缝合"], ans: 1 },
+    { q: "下列肢体测量方法中，哪项是错误的", opts: ["必须先将两侧肢体放置于对称的位置上来测量长度", "必须在肢体的中部来测量周径", "上肢的长度为肩峰到桡骨茎突尖（或中指指尖）", "下肢的长度为髂前上棘至内踝尖", "下肢的轴线为膝伸直位时髂前上棘和第一趾蹼间的连线，通过髌骨中心"], ans: 1 },
+    { q: "下列哪项是颅前窝骨折的临床表现", opts: ["黑眼征，鼻孔血性脑脊液漏", "局限性癫痫，一侧肢体瘫痪", "颞顶部压痛", "乳突、枕下部皮下瘀血", "耳道血性脑脊液"], ans: 0 },
+    { q: "关节脱位是指", opts: ["关节分离", "关节囊扭伤并断裂", "关节韧带断裂", "关节面失去正常对合关系", "关节出现畸形和弹性固定"], ans: 3 },
+    { q: "关节内骨折最常见的并发症是", opts: ["缺血性骨坏死", "骨生成异常", "骨折不愈合", "骨化性肌炎", "创伤性关节炎"], ans: 4 },
+    { q: "急性腰扭伤与腰椎间盘突出症均可有坐骨神经支配区疼痛，其鉴别依靠", opts: ["外伤史", "X线片", "体检时是否有病变部位椎管压痛", "直腿抬高试验", "局部痛点普鲁卡因封闭"], ans: 4 },
+    { q: "下列哪项与大量快速输血无直接因果关系", opts: ["循环超负荷", "枸橼酸中毒", "高钾血症", "出血倾向", "移植物抗宿主病"], ans: 4 },
+    { q: "膝关节旋转挤压试验阳性是下列哪一种疾病的重要体征", opts: ["膝关节交叉韧带损伤", "膝关节滑膜炎", "膝关节半月板损伤", "膝关节侧副韧带损伤", "以上都不正确"], ans: 2 },
+    { q: "腹腔镜探查术不可应用于以下哪项诊断", opts: ["腹部外伤", "腹部肿块", "胰腺结石", "腹腔转移癌", "腹水"], ans: 2 },
+    { q: "输血后产生的血型抗体以哪种免疫球蛋白为主", opts: ["IgA", "IgD", "IgG", "IgE", "IgM"], ans: 2 },
+    { q: "乳房再造后乳头乳晕再造最合适的时间是", opts: ["即刻", "术后半个月", "术后三个月", "术后半年", "术后一年"], ans: 2 },
+    { q: "胸部钝性损伤中，气管支气管破裂最常见的部位是", opts: ["左侧主支气管", "右侧主支气管", "距隆突2.5cm以内气管支气管膜部", "气管下段气管膜部", "气管上段气管膜部"], ans: 2 },
+    { q: "关于输血原则的描述，以下正确的是", opts: ["输同型血，交叉配血的主侧和次侧都不凝", "紧急情况可尽量输O型血给其他血型的受血者", "只要交叉配血主侧不凝，就可以输血", "只要血型相同，可不做交叉配血", "第一次配血相合，输血顺利，第二次接受同一献血员，血液不必做交叉配血"], ans: 0 },
+    { q: "以下哪种脑损伤最容易引起外伤性癫痫", opts: ["硬膜外血肿", "硬膜下血肿", "脑室内出血", "开放性脑损伤", "脑内血肿"], ans: 3 },
+    { q: "关于正常妊娠期间泌尿系统的改变，以下哪项是正确的", opts: ["仰卧位尿量减少", "夜尿量少于日尿量", "肾血流量增加，肾小球滤过率增加", "孕妇易患肾盂肾炎，以左侧多见", "肾小管对葡萄糖的再吸收能力与肾小球滤过率相应增加"], ans: 2 },
+    { q: "阴道大出血，休克，疑为前置胎盘。以下哪一项检查最合适", opts: ["肛诊", "阴道检查", "窥器检查", "超声波胎盘定位", "CT"], ans: 3 },
+    { q: "关于胎心音，下述哪项是正确的", opts: ["妊娠20周左右可经孕妇腹壁听到", "为单音调", "妊娠24周以后，在胎儿肢体侧听得最清楚", "多伴有杂音", "胎心率与母体心率近似"], ans: 0 },
+    { q: "应用于产科中较理想的肌肉松弛药是", opts: ["琥珀胆碱", "筒箭毒碱", "洋库溴铵", "阿曲库铵", "维库溴铵"], ans: 3 },
+    { q: "关于滴虫性阴道炎，下列说法错误的是", opts: ["经性交直接传播", "潜伏期为4~28天", "月经期前后，阴道内pH增高易引起炎症发作", "阴道毛滴虫不会经性交传染", "阴道毛滴虫能吞噬精子，可致不孕"], ans: 3 },
+    { q: "女性第二性征中出现最早的多是", opts: ["阴毛出现", "腋毛出现", "乳房发育", "脂肪分布变化", "嗓音改变"], ans: 2 },
+    { q: "子宫内膜异位症的治疗一般不用", opts: ["化疗", "手术加性激素治疗", "保留生育功能的手术", "根治性手术", "性激素治疗"], ans: 0 },
+    { q: "心脏病产妇胎儿娩出后应立即", opts: ["腹部放置沙袋", "静注麦角新碱", "鼓励下床活动", "抗感染", "行绝育手术"], ans: 0 },
+    { q: "子宫脱垂的诊断标准是", opts: ["整个子宫脱出阴道口外", "阴道壁脱出于阴道外", "子宫颈及部分子宫体脱出于阴道外", "子宫颈阴道壁脱出于阴道口外", "子宫颈下垂到坐骨棘以下"], ans: 4 },
+    { q: "前置胎盘临床定义为", opts: ["生殖道微生物感染史", "腹检子宫轮廓不清", "妊娠期严重并发症", "与稽留流产相鉴别", "行宫颈管内指诊确诊"], ans: 2 },
+    { q: "有关输卵管结核的叙述，不正确的是", opts: ["发病率为女性生殖器结核的首位", "直肠子宫陷凹可扪及痛性结节", "双侧输卵管多受累", "输卵管浆膜面见多个粟粒结节", "输卵管管腔内可见到干酪样物质，管壁内有结核结节"], ans: 1 },
+    { q: "关于产褥感染的论述，以下正确的是", opts: ["分娩后生殖道的感染", "表现为分娩24小时后至产后10天内，体温有2次达到或超过39℃", "由于抗生素的广泛应用，已经不是产妇死亡的主要原因之一", "感染源主要为外来感染", "感染部位局限，不会蔓延至其他组织器官"], ans: 0 },
+    { q: "下列哪项不是临产后肛查的目的", opts: ["宫颈的软硬、厚薄及扩张程度", "胎盘位置", "骨盆腔的大小", "胎先露，胎方位", "先露高低"], ans: 1 },
+    { q: "完全性前置胎盘发生阴道流血的时间约在妊娠后", opts: ["20周左右", "22周左右", "24周左右", "28周左右", "37~40周"], ans: 3 },
+    { q: "下列哪些概念是错误的", opts: ["产褥病率指分娩24小时以后的10日内，每日口表测4次，每次间隔4小时，其中有2次体温≥38℃", "分娩24小时后在产褥期内发生的子宫大量出血为晚期产后出血", "产力包括子宫收缩力、腹肌及膈肌收缩力", "宫颈扩张的活跃期指宫口开大3cm至宫口开全", "胎产式是指胎体纵轴与母体纵轴的关系"], ans: 2 },
+    { q: "心脏按压同时须做有效的人工呼吸，正确方法为", opts: ["每按压胸部4~5次后，做1次人工呼吸", "每按压胸部4~5次后，做2次人工呼吸", "每按压胸部2~3次后，做1次人工呼吸", "每按压胸部1~2次后，做1次人工呼吸", "每按压胸部6次后，做2次人工呼吸"], ans: 0 },
+    { q: "矫正马蹄内翻足的最佳时间为", opts: ["生后即开始", "1岁以后", "3岁以后", "学龄期", "青春期"], ans: 0 },
+    { q: "法洛四联症最早且主要的表现是", opts: ["蹲踞", "发绀", "突然晕厥", "杵状指(趾)", "活动耐力下降"], ans: 1 },
+    { q: "服脊髓灰质炎三价疫苗，下列哪项做法是错误的", opts: ["从2个月开始服用", "每次服三型白色糖丸一粒，每次隔1月，共3次", "吞服糖丸时必须用冷开水送服", "发热、活动性肺结核、免疫缺陷者均应忌服本疫苗", "出现腹泻立即用抗生素"], ans: 4 },
+    { q: "蛋白质-能量营养不良最常见的维生素缺乏是", opts: ["维生素D缺乏", "维生素C缺乏", "维生素B1缺乏", "维生素B2缺乏", "维生素A缺乏"], ans: 4 },
+    { q: "新生儿每日生成胆红素量约", opts: ["10.5mg/kg", "6.5mg/kg", "4.5mg/kg", "8.5mg/kg", "2.5mg/kg"], ans: 3 },
+    { q: "急性肾小球肾炎患者在下列哪种情况下应给予降压药", opts: ["浮肿、血尿、少尿", "有高氮质血症", "利尿后血压持续升高，舒张压高于90mmHg", "有循环充血表现", "以上都不是"], ans: 2 },
+    { q: "卵圆孔在解剖学上闭合的时间大多是", opts: ["生后1~2个月", "生后3~4个月", "生后5~7个月", "生后8~9个月", "生后10~11个月"], ans: 2 },
+    { q: "佝偻病活动初期的表现是", opts: ["易激惹，多汗等神经精神症状", "多种骨骼畸形", "手镯征", "肌张力低下", "出牙延迟"], ans: 0 },
+    { q: "新生儿巨结肠最重要的临床表现是", opts: ["腹胀，腹壁浅静脉怒张", "呕吐粪便样物", "腹部可见肠型", "胎便排出延迟", "营养不良"], ans: 3 },
+    { q: "当母乳喂养建立规律后，一般每隔几小时1次", opts: ["2~3小时", "3~4小时", "4~5小时", "5~6小时", "1~2小时"], ans: 1 },
+    { q: "关于腺病毒肺炎的临床特点，以下哪项是错误的", opts: ["多见于6个月以下小婴儿", "急起稽留高热", "咳嗽重，有喘憋及呼吸困难", "肺部体征出现晚，X线改变出现早", "病灶吸收缓慢"], ans: 0 },
+    { q: "小儿感冒的高发季节是", opts: ["春季", "夏季", "夏秋季", "秋冬季", "冬春季"], ans: 4 },
+    { q: "小儿腹泻中度脱水，第1天的静脉补液总量应为", opts: ["50~70ml/kg", "70~100ml/kg", "100~130ml/kg", "130~150ml/kg", "150~180ml/kg"], ans: 2 },
+    { q: "新生儿寒冷损伤综合征患儿发生的多器官损伤中，下列哪项除外", opts: ["肾功能损伤", "肺出血", "皮肤坏死", "休克", "DIC"], ans: 2 },
+    { q: "关于载脂蛋白生理功能的叙述，下列错误的是", opts: ["参与酶活性正反两方面作用，调节脂蛋白代谢", "维持脂蛋白的结构和物理特征", "抑制各种脂蛋白与受体结合", "作为脂蛋白受体的配体", "转运脂质"], ans: 2 },
+    { q: "关于前清蛋白的叙述，以下哪项不正确", opts: ["是运载蛋白", "是营养不良的敏感指标", "是肝功能不全的敏感指标", "不是急性时相反应蛋白", "分子量比清蛋白小"], ans: 3 },
+    { q: "有关肾脏血管平滑肌脂肪瘤的描述，正确的是", opts: ["属于良性肿瘤，所有患者合并有家族性结节性硬化症", "占肾脏肿瘤的40%以上", "非常容易恶变和转移", "实为一种错构瘤，由成熟脂肪、血管和不规则平滑肌组成", "需与脂肪肉瘤等鉴别，HMB-45的免疫组化染色常为阴性"], ans: 3 },
+    { q: "下列哪种吸入麻醉药具有肾毒性", opts: ["甲氧氟烷", "安氟烷", "恩氟烷", "氟烷", "地氟烷"], ans: 0 },
+    { q: "老年人静息状态下血中去甲肾上腺素和肾上腺素较年轻人", opts: ["低50%", "基本相同", "高10%", "高50%", "高2~4倍"], ans: 4 },
+    { q: "普鲁卡因在体内消除的方式是", opts: ["重新分布于脂肪", "被单胺氧化酶代谢", "以原形从肾排泄", "在肝氧化分解", "被假性胆碱酯酶水解"], ans: 4 },
+    { q: "5MHz表示的是声波", opts: ["每秒50万周", "每秒5千万周", "每秒5千周", "每秒5百万周", "每秒5万周"], ans: 3 },
+    { q: "以下哪项不是反映尿路通畅时肾功能的肾图指标", opts: ["峰时", "半排时间", "肾脏指数", "15分钟残留率", "峰值差"], ans: 4 },
+    { q: "下列描述与乳腺纤维瘤的临床和X线主要特征不符合的是", opts: ["肿块边界清楚", "周期性疼痛", "肿块活动，增长缓慢", "肿块明显压痛", "无腋窝淋巴结增大"], ans: 3 },
+    { q: "可增强药物补肾功效的炮制方法是", opts: ["蜜炙", "煨用", "醋炙", "姜汁炙", "盐炙"], ans: 4 },
+    { q: "髋的骨性关节炎最常见的表现是", opts: ["渗液", "无力", "捻发音", "关节挛缩", "疼痛"], ans: 4 },
+    { q: "发自髓室底至根分叉处的管道是指", opts: ["主根管", "副根管", "侧枝根管", "管间吻合", "以上都不对"], ans: 1 },
+    { q: "关于颅内压增高的临床表现，叙述错误的是", opts: ["头痛在早晨或晚间较重，多位于额部及两颞，性质以胀痛和撕裂痛多见", "呕吐常呈喷射状，与进食无关，易发生于饭后，伴或不伴有恶心", "视盘水肿早期表现为眼底视网膜静脉扩张、视盘充血，如颅内压增高无改善，可出现视力减退，继发性视神经萎缩，以致失明", "单纯的颅内压增高不会引起展神经麻痹及复视", "儿童患者头颅叩诊时呈破罐声，可见头皮浅静脉扩张"], ans: 3 },
+    { q: "在心肺后期复苏中，以下哪项处理不适宜", opts: ["利用器械或呼吸器进行人工呼吸", "因胸内心脏挤压远比胸外心脏挤压更有效，故宜使用胸内心脏挤压", "肾上腺素是心脏复苏时最常用、效果最好的药物", "利多卡因是治疗室性早搏或阵发性室性心动过速的药物", "如出现心室纤颤，宜进行电除颤治疗"], ans: 1 },
+    { q: "过敏反应发生时要特别注意以下哪项", opts: ["急性肺淤血和过度充气", "喉头水肿", "内脏充血", "肺间质水肿与出血", "支气管痉挛"], ans: 4 },
+    { q: "人体骨杠杆上的力点为", opts: ["关节的中心点", "肌肉在骨上的附着点", "与阻力作用点对称的点", "支点与阻力点之间1/2处的点", "各种力量和力的附着点"], ans: 1 },
+    { q: "关于锥体外系的描述，错误的是", opts: ["种系发生比较古老", "主要功能是调节肌张力、维持姿势和协调骨骼肌运动", "从大脑皮质到皮质下中枢，结构复杂", "与锥体系联系紧密，功能协调一致", "损伤后导致骨骼肌瘫痪"], ans: 4 },
+    { q: "与人体平衡功能无关的是", opts: ["视觉", "本体感觉", "听觉", "中枢神经系统", "运动系统"], ans: 2 },
+    { q: "阿司匹林不耐受三联征是指", opts: ["鼻息肉、哮喘、高血压", "鼻息肉、支气管哮喘、阿司匹林过敏", "鼻息肉、鼻出血、鼻窦炎", "鼻息肉、上颌窦息肉、哮喘", "鼻息肉、反复下呼吸道感染、家族史"], ans: 1 },
+    { q: "中枢型睡眠呼吸暂停与阻塞型睡眠呼吸暂停的不同点是", opts: ["鼻腔与口腔无效的气流通过", "胸腹呼吸运动停止", "动脉血氧饱和度下降", "持续的奋力呼吸", "鼾声明显"], ans: 1 },
+    { q: "眼底检查发现有白色棉絮斑（软性渗出），说明糖尿病视网膜病变进展到", opts: ["Ⅰ期", "Ⅱ期", "Ⅲ期", "Ⅳ期", "Ⅴ期"], ans: 1 },
+    { q: "甲癣口服药治疗，由于用药时间较长，在治疗期间最需检查", opts: ["血常规", "肝功能", "肾功能", "尿常规", "凝血象"], ans: 1 },
+    { q: "光变态反应性药疹的特点不包括", opts: ["少数人发病", "有一定潜伏期", "只出现在曝光部位", "皮疹表现为湿疹样", "病程较长"], ans: 2 },
+    { q: "关于恐怖症，下述哪项正确", opts: ["恐怖症是患者缺乏客观物体时所感受到的情感体验", "恐怖是对具体现象出现不合理的恐惧或紧张不安的体验，但不出现回避反应", "恐怖症是患者明知这种恐惧不必要，但无法控制，而出现回避反应", "恐怖症是患者对具体现象出现恐惧而无法回避", "恐怖症是以恐怖症状为主要临床表现的一种神经症"], ans: 2 },
+    { q: "精神分裂症患者长期使用抗精神病药后出现持续性弄舌、咀嚼和四肢舞蹈样动作时，处理方法首先应该是", opts: ["加大抗精神病药物剂量", "逐渐减少或停用抗精神病药物进行观察", "检查血沉、抗O等，排除风湿性脑病", "加用抗震颤麻痹药物", "合并另一种抗精神病药"], ans: 1 },
+    { q: "男性，42岁，因左侧面部不适，外耳道疼痛2天来院就诊。体检：左侧额纹消失，左侧闭眼不能，左侧鼻唇沟浅，露齿时口角右歪，左侧舌前2/3味觉减退，左外耳道见少量疱疹。该病人病变可能定位在", opts: ["左茎乳孔外侧面神经病变", "左茎乳孔后镫骨肌分支", "左镫骨肌分支处面神经病变", "左膝状神经节病变", "左桥脑小脑角病变"], ans: 3 },
+    { q: "患者男性，60岁，有高血压病史20年，一直服药。因情绪激动，2小时前出现明显头痛、烦躁、眩晕、恶心、呕吐。查体：神志不清，血压240/130mmHg，心率90次/分，肝脾未及，病理征阴性。以上表现应采取的措施是", opts: ["口服降压药", "硝普钠静脉给药", "甘露醇", "氟美松", "吗啡"], ans: 1 },
+    { q: "女性，25岁，10天来发热伴牙龈出血。查体：贫血貌，皮肤可见出血点，胸骨有压痛，肝脾肋下各1cm。化验：Hb70g/L，WBC15.5×10^9/L，PLT20×10^9/L。下列对诊断无帮助的是", opts: ["白细胞分类", "血小板抗体", "骨髓穿刺", "骨髓细胞组化染色", "骨髓活检"], ans: 1 },
+    { q: "一患者突发右侧胸痛，并伴呼吸困难就诊。查体：气管向左侧移位，右侧胸壁隆起，呼吸运动和触觉语颤减弱，叩诊呈鼓音，听诊呼吸音消失。疑为气胸，其X线表现应为", opts: ["圆形或卵圆形透光，其内有细小的条纹理", "右侧肺脏被压缩，并见到一发线状线在被压缩肺的外缘", "右肺下叶见一圆形透亮区，其内可见液平面", "右肺可见一偏心空洞", "无异常所见"], ans: 1 },
+    { q: "患儿，女，5岁。腹部外伤，手术探查发现脾下极有一3cm裂伤，深1.0cm。手术方式宜采取", opts: ["脾下极切除术", "脾切除术", "脾修补术", "脾动脉结扎术", "明胶海绵充填术"], ans: 2 },
+    { q: "女性，12岁，出生后发现心脏杂音，无明显症状。体格检查：无发绀，胸骨左缘第2肋间听到4级粗糙的喷射性收缩期杂音，向左颈部传导，肺动脉第2音降低。右心导管检查：右心室与肺动脉收缩压差为10.7kPa。该患儿的诊断应是", opts: ["室间隔缺损", "房间隔缺损", "动脉导管未闭", "肺动脉瓣口狭窄", "法乐四联症"], ans: 3 },
+    { q: "9岁女孩，5天前突然右髋疼痛，并有高热。查体：体温39.5℃，脉搏110次/分，右髋关节肿胀，不敢活动。白细胞22×10^9/L，中性粒细胞98%，血沉30mm第一小时末。主要考虑", opts: ["急性化脓性关节炎", "急性风湿性关节炎", "类风湿性关节炎", "髋周软组织炎", "髋关节结核"], ans: 0 },
+    { q: "患者，女性，60岁。因切除右上睑肿物（1cm×1cm）后出现睁眼困难，术后1年症状无改善。可诊断为", opts: ["先天性上睑下垂", "医源性上睑下垂", "神经源性上睑下垂", "肌源性上睑下垂", "假性上睑下垂"], ans: 1 },
+    { q: "初孕妇，28岁，孕32周。因全身浮肿及头痛来诊，妊娠前即有面部及下肢浮肿。测血压160/110mmHg，尿常规：蛋白(+++)，可见颗粒管型及红细胞。经治疗孕37周自然分娩，产后6周，血压降至128/75mmHg，尿蛋白(+++)，水肿(+)。下列诊断以哪种可能性大", opts: ["先兆子痫", "妊娠合并肾炎", "慢性肾炎基础上并发先兆子痫", "妊娠合并慢性高血压", "原发性高血压基础上并发先兆子痫"], ans: 2 },
+    { q: "患者，女性，25岁。人工流产后1个月发热，腹痛，阴道分泌物多，虽经抗感染治疗，上述症状却日益加重，伴大便感。妇科检查：后穹窿触及囊性肿块，张力高，触痛明显，子宫难触清。拟诊急性盆腔炎、盆腔脓肿形成，下列哪项是最佳治疗方案", opts: ["抗生素静脉、肌内同时给药", "给予抗生素，取半卧位", "立即剖腹探查切除子宫及脓肿，保留附件", "给予抗生素，后穹窿切开引流", "给予抗生素，阴道侧穹窿切开引流"], ans: 3 },
+    { q: "女性，44岁，G3P1A2L1。月经紊乱1年，阴道少量流血20余天就诊。妇科检查：宫颈肥大，重度颗粒型糜烂，子宫体稍大，双附件无异常。应首先进行哪项检查", opts: ["宫颈细胞学检查", "诊断性刮宫", "超声检查", "阴道镜检查", "宫颈细胞学检查加分段刮宫"], ans: 4 },
+    { q: "24岁初孕妇，孕29周，在急诊室主诉夜间突然阴道流血1小时，量少于月经，伴腹部轻微胀痛。体检：血压105/68mmHg，胎心率140次/分，胎位LOA，头浮。子宫有不规则收缩，无压痛。最可能诊断是", opts: ["先兆早产", "胎盘早剥", "胎盘边缘血窦破裂", "前置胎盘", "子宫颈息肉出血"], ans: 0 },
+    { q: "患者，男，2岁。啼哭时可见腹股沟上段内侧由外上向内下前斜行突现一圆形囊性包块，平卧时可自行回纳。应首先考虑的是", opts: ["腹股沟直疝", "切口疝", "股疝", "腹股沟斜疝", "脐疝"], ans: 3 },
+    { q: "男性，15岁，20分钟前走路不慎跌倒在地。查体：右手无畸形，稍肿胀，无反常活动及骨擦感，右桡骨远端压痛，右腕关节活动障碍。下列哪项不正确", opts: ["可排除骨折", "需X线片以协助诊断", "可用石膏外固定", "不排除骨折", "不应反复查骨擦感及反常活动"], ans: 0 },
+    { q: "女性，2岁。走路呈鸭步，双下肢等长，Allis征阴性，Ortolani试验阳性。骨盆X线片显示股骨头骨骺明显变小，外移呈Ⅰ度脱位，髋臼指数大。复位后X线片示双侧头臼对称。需固定多长时间为宜", opts: ["3个月", "6个月", "9个月", "1年", "石膏固定3个月，换支具固定3个月"], ans: 4 }
+];
+
+    // ============================================================
+    //  状态变量
+    // ============================================================
+    var currentMode = null;
+    var currentIndex = 0;
+    var userAnswers = new Array(questions.length).fill(null);
+    var markedQuestions = new Array(questions.length).fill(false);
+    var isSubmitted = false;
+    var wrongList = [];
+    var isFromWrongBook = false;
+    var isFromOverview = false;
+    // 练习模式：记录每题是否已经答过一次（用于首次显示反馈）
+    var practiceAnswered = new Array(questions.length).fill(false);
+
+    // ============================================================
+    //  模式切换
+    // ============================================================
+    function selectMode(mode) {
+        currentMode = mode;
+        document.getElementById('modeSelect').classList.add('hidden');
+        document.getElementById('mainArea').classList.remove('hidden');
+
+        userAnswers = new Array(questions.length).fill(null);
+        markedQuestions = new Array(questions.length).fill(false);
+        practiceAnswered = new Array(questions.length).fill(false);
+        isSubmitted = false;
+        wrongList = [];
+        currentIndex = 0;
+        isFromWrongBook = false;
+        isFromOverview = false;
+
+        var badge = document.getElementById('statusBadge');
+        var submitBtn = document.getElementById('submitBtn');
+        var practiceOverviewBtn = document.getElementById('practiceOverviewBtn');
+        var backOverviewBtn = document.getElementById('backToOverviewBtn');
+
+        if (mode === 'exam') {
+            badge.textContent = '📝 考试模式';
+            badge.className = 'badge exam-badge';
+            submitBtn.classList.remove('hidden');
+            practiceOverviewBtn.classList.add('hidden');
+            backOverviewBtn.classList.add('hidden');
+        } else {
+            badge.textContent = '⚡ 练习模式';
+            badge.className = 'badge practice-badge';
+            submitBtn.classList.add('hidden');
+            practiceOverviewBtn.classList.remove('hidden');
+            backOverviewBtn.classList.add('hidden');
+        }
+
+        document.getElementById('totalNum').textContent = questions.length;
+        document.getElementById('resultArea').classList.add('hidden');
+        document.getElementById('examArea').classList.remove('hidden');
+        document.getElementById('overviewArea').classList.add('hidden');
+        document.getElementById('practiceOverviewArea').classList.add('hidden');
+        document.getElementById('wrongBookArea').classList.add('hidden');
+
+        renderQuestion();
+        updateStats();
+    }
+
+    function goHome() {
+        if (!confirm('确定要退出当前模式吗？进度将丢失。')) return;
+        document.getElementById('mainArea').classList.add('hidden');
+        document.getElementById('modeSelect').classList.remove('hidden');
+        currentMode = null;
+    }
+
+    // ============================================================
+    //  渲染题目
+    // ============================================================
+    function renderQuestion() {
+        var q = questions[currentIndex];
+        document.getElementById('qNumber').textContent = '第 ' + (currentIndex + 1) + ' 题（共 ' + questions.length + ' 题）';
+        document.getElementById('qText').textContent = q.q;
+        document.getElementById('currentNum').textContent = currentIndex + 1;
+
+        // 标记按钮状态
+        var markBtn = document.getElementById('markBtn');
+        if (markedQuestions[currentIndex]) {
+            markBtn.textContent = '⭐';
+            markBtn.classList.add('marked');
+        } else {
+            markBtn.textContent = '☆';
+            markBtn.classList.remove('marked');
+        }
+
+        // 返回错题集按钮
+        var backWrongBtn = document.getElementById('backToWrongBtn');
+        if (isFromWrongBook && isSubmitted && currentMode === 'exam') {
+            backWrongBtn.classList.remove('hidden');
+        } else {
+            backWrongBtn.classList.add('hidden');
+        }
+
+        // 返回总览按钮
+        var backOverviewBtn = document.getElementById('backToOverviewBtn');
+        if (isFromOverview && isSubmitted && currentMode === 'exam') {
+            backOverviewBtn.classList.remove('hidden');
+        } else {
+            backOverviewBtn.classList.add('hidden');
+        }
+
+        var container = document.getElementById('optionsContainer');
+        container.innerHTML = '';
+
+        var selectedIdx = userAnswers[currentIndex];
+        var isPracticeMode = (currentMode === 'practice');
+
+        q.opts.forEach(function(opt, idx) {
+            var div = document.createElement('div');
+            div.className = 'option';
+
+            // 考试模式：交卷后禁用
+            if (currentMode === 'exam' && isSubmitted) {
+                div.classList.add('disabled');
+            }
+
+            // ⭐ 练习模式：永不禁用选项，用户可以反复点击不同选项
+            // 但已选的选项高亮显示
+            if (selectedIdx !== null && selectedIdx === idx) {
+                div.classList.add('selected');
+            }
+
+            // ⭐ 练习模式：如果当前题已经答过一次（practiceAnswered为true），显示反馈标记
+            if (isPracticeMode && practiceAnswered[currentIndex]) {
+                if (idx === q.ans) {
+                    div.classList.add('practice-correct');
+                    div.innerHTML = String.fromCharCode(65 + idx) + '. ' + opt + ' <span class="result-icon">✅</span>';
+                } else if (selectedIdx === idx && idx !== q.ans) {
+                    div.classList.add('practice-wrong');
+                    div.innerHTML = String.fromCharCode(65 + idx) + '. ' + opt + ' <span class="result-icon">❌</span>';
+                } else {
+                    div.textContent = String.fromCharCode(65 + idx) + '. ' + opt;
+                }
+            } else {
+                div.textContent = String.fromCharCode(65 + idx) + '. ' + opt;
+            }
+
+            div.onclick = function() { selectOption(idx); };
+            container.appendChild(div);
+        });
+
+        // 考试模式交卷后显示对错
+        if (currentMode === 'exam' && isSubmitted) {
+            showRevealOnCurrent();
+        }
+
+        updateButtons();
+        updateStats();
+    }
+
+    // ============================================================
+    //  选择选项
+    // ============================================================
+    function selectOption(idx) {
+        // 考试模式
+        if (currentMode === 'exam') {
+            if (isSubmitted) return;
+            userAnswers[currentIndex] = idx;
+            renderQuestion();
+            updateStats();
+            return;
+        }
+
+        // ⭐ 练习模式：允许反复选择，每次都重新判断
+        if (currentMode === 'practice') {
+            var q = questions[currentIndex];
+            var oldAnswer = userAnswers[currentIndex];
+            
+            // 更新答案
+            userAnswers[currentIndex] = idx;
+            // 标记已答（用于显示反馈标记）
+            practiceAnswered[currentIndex] = true;
+
+            // 更新错题列表
+            // 如果当前答案正确，从错题列表中移除
+            if (idx === q.ans) {
+                wrongList = wrongList.filter(function(item) { return item.index !== currentIndex; });
+            } else {
+                // 如果答错，添加到错题列表（如果不存在的话）
+                var exists = wrongList.some(function(item) { return item.index === currentIndex; });
+                if (!exists) {
+                    wrongList.push({ index: currentIndex, userAns: idx });
+                } else {
+                    // 如果已存在，更新答案
+                    for (var i = 0; i < wrongList.length; i++) {
+                        if (wrongList[i].index === currentIndex) {
+                            wrongList[i].userAns = idx;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            renderQuestion();
+            updateStats();
+        }
+    }
+
+    // ============================================================
+    //  导航
+    // ============================================================
+    function nextQuestion() {
+        if (currentIndex < questions.length - 1) {
+            currentIndex++;
+            renderQuestion();
+        }
+    }
+
+    function prevQuestion() {
+        if (currentIndex > 0) {
+            currentIndex--;
+            renderQuestion();
+        }
+    }
+
+    function updateButtons() {
+        document.getElementById('prevBtn').style.visibility = currentIndex === 0 ? 'hidden' : 'visible';
+        document.getElementById('nextBtn').style.visibility = currentIndex === questions.length - 1 ? 'hidden' : 'visible';
+    }
+
+    function updateStats() {
+        var answered = userAnswers.filter(function(a) { return a !== null; }).length;
+        var marked = markedQuestions.filter(function(m) { return m; }).length;
+        document.getElementById('answeredCount').textContent = answered;
+        document.getElementById('markedCount').textContent = marked;
+        var progress = (answered / questions.length) * 100;
+        document.getElementById('progressFill').style.width = progress + '%';
+    }
+
+    // ============================================================
+    //  标记功能（考试和练习模式都可用）
+    // ============================================================
+    function toggleMark() {
+        if (currentMode === 'exam' && isSubmitted) return;
+        markedQuestions[currentIndex] = !markedQuestions[currentIndex];
+        renderQuestion();
+        updateStats();
+    }
+
+    // ============================================================
+    //  考试模式 - 交卷显示对错
+    // ============================================================
+    function showRevealOnCurrent() {
+        var container = document.getElementById('optionsContainer');
+        var q = questions[currentIndex];
+        var userAns = userAnswers[currentIndex];
+        var opts = container.querySelectorAll('.option');
+
+        opts.forEach(function(el, idx) {
+            var text = String.fromCharCode(65 + idx) + '. ' + q.opts[idx];
+            el.innerHTML = text;
+            el.classList.remove('correct-reveal', 'wrong-reveal', 'missed-reveal');
+            el.classList.add('disabled');
+
+            if (idx === q.ans) {
+                el.classList.add('correct-reveal');
+                el.innerHTML += ' <span class="mark">✅</span>';
+            } else if (userAns !== null && idx === userAns && idx !== q.ans) {
+                el.classList.add('wrong-reveal');
+                el.innerHTML += ' <span class="mark">❌</span>';
+            }
+            if (userAns === null) {
+                el.classList.add('missed-reveal');
+            }
+        });
+    }
+
+    // ============================================================
+    //  考试模式 - 交卷
+    // ============================================================
+    function submitExam() {
+        if (currentMode !== 'exam') return;
+        var answered = userAnswers.filter(function(a) { return a !== null; }).length;
+        if (answered < questions.length) {
+            if (!confirm('你还有 ' + (questions.length - answered) + ' 道题未作答，确定要交卷吗？')) {
+                return;
+            }
+        }
+
+        isSubmitted = true;
+        var correct = 0;
+        var wrong = 0;
+        var unanswered = 0;
+        wrongList = [];
+
+        for (var i = 0; i < questions.length; i++) {
+            var q = questions[i];
+            var userAns = userAnswers[i];
+            if (userAns === null) {
+                unanswered++;
+                wrongList.push({ index: i, userAns: -1 });
+            } else if (userAns === q.ans) {
+                correct++;
+            } else {
+                wrong++;
+                wrongList.push({ index: i, userAns: userAns });
+            }
+        }
+
+        var marked = markedQuestions.filter(function(m) { return m; }).length;
+
+        document.getElementById('correctCountDisplay').textContent = correct;
+        document.getElementById('wrongCountDisplay').textContent = wrong;
+        document.getElementById('unansweredCountDisplay').textContent = unanswered;
+        document.getElementById('markedCountDisplay').textContent = marked;
+        document.getElementById('scoreDisplay').innerHTML = Math.round((correct / questions.length) * 100) + '<span> / 100</span>';
+        document.getElementById('statusBadge').textContent = '✅ 已交卷';
+        document.getElementById('statusBadge').className = 'badge done-badge';
+
+        document.getElementById('examArea').classList.add('hidden');
+        document.getElementById('resultArea').classList.remove('hidden');
+
+        document.getElementById('practiceOverviewBtn').classList.add('hidden');
+    }
+
+    // ============================================================
+    //  回到试卷
+    // ============================================================
+    function backToExam() {
+        isFromWrongBook = false;
+        isFromOverview = false;
+        document.getElementById('resultArea').classList.add('hidden');
+        document.getElementById('overviewArea').classList.add('hidden');
+        document.getElementById('practiceOverviewArea').classList.add('hidden');
+        document.getElementById('examArea').classList.remove('hidden');
+        renderQuestion();
+    }
+
+    // ============================================================
+    //  考试模式 - 题号总览
+    // ============================================================
+    function showOverview() {
+        var area = document.getElementById('overviewArea');
+        var grid = document.getElementById('overviewGrid');
+        grid.innerHTML = '';
+
+        for (var i = 0; i < questions.length; i++) {
+            var div = document.createElement('div');
+            div.className = 'overview-item';
+            div.textContent = i + 1;
+
+            var userAns = userAnswers[i];
+            var q = questions[i];
+
+            if (userAns === null) {
+                div.classList.add('unanswered');
+            } else if (userAns === q.ans) {
+                div.classList.add('correct');
+            } else {
+                div.classList.add('wrong');
+            }
+
+            if (markedQuestions[i]) {
+                var star = document.createElement('span');
+                star.className = 'star-mark';
+                star.textContent = '⭐';
+                div.appendChild(star);
+            }
+
+            div.onclick = function(idx) {
+                return function() {
+                    jumpToQuestionFromOverview(idx);
+                };
+            }(i);
+
+            grid.appendChild(div);
+        }
+
+        area.classList.remove('hidden');
+        document.getElementById('wrongBookArea').classList.add('hidden');
+        document.getElementById('practiceOverviewArea').classList.add('hidden');
+    }
+
+    function closeOverview() {
+        document.getElementById('overviewArea').classList.add('hidden');
+    }
+
+    function jumpToQuestionFromOverview(index) {
+        isFromOverview = true;
+        isFromWrongBook = false;
+        closeOverview();
+        document.getElementById('resultArea').classList.add('hidden');
+        document.getElementById('examArea').classList.remove('hidden');
+        currentIndex = index;
+        renderQuestion();
+        document.getElementById('examArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        updateStats();
+    }
+
+    function backToOverview() {
+        isFromOverview = false;
+        document.getElementById('examArea').classList.add('hidden');
+        document.getElementById('resultArea').classList.remove('hidden');
+        document.getElementById('wrongBookArea').classList.add('hidden');
+        document.getElementById('practiceOverviewArea').classList.add('hidden');
+        showOverview();
+        document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // ============================================================
+    //  练习模式 - 题号总览
+    // ============================================================
+    function showPracticeOverview() {
+        document.getElementById('resultArea').classList.remove('hidden');
+        var area = document.getElementById('practiceOverviewArea');
+        var grid = document.getElementById('practiceOverviewGrid');
+        grid.innerHTML = '';
+
+        for (var i = 0; i < questions.length; i++) {
+            var div = document.createElement('div');
+            div.className = 'overview-item';
+            div.textContent = i + 1;
+
+            var userAns = userAnswers[i];
+            var q = questions[i];
+
+            if (userAns === null) {
+                div.classList.add('unanswered');
+            } else if (userAns === q.ans) {
+                div.classList.add('correct');
+            } else {
+                div.classList.add('wrong');
+            }
+
+            if (markedQuestions[i]) {
+                var star = document.createElement('span');
+                star.className = 'star-mark';
+                star.textContent = '⭐';
+                div.appendChild(star);
+            }
+
+            div.onclick = function(idx) {
+                return function() {
+                    jumpToQuestionFromPracticeOverview(idx);
+                };
+            }(i);
+
+            grid.appendChild(div);
+        }
+
+        document.getElementById('examArea').classList.add('hidden');
+        document.getElementById('overviewArea').classList.add('hidden');
+        document.getElementById('wrongBookArea').classList.add('hidden');
+        area.classList.remove('hidden');
+
+        document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function closePracticeOverview() {
+        document.getElementById('practiceOverviewArea').classList.add('hidden');
+        document.getElementById('examArea').classList.remove('hidden');
+        document.getElementById('resultArea').classList.add('hidden');
+        renderQuestion();
+    }
+
+    function jumpToQuestionFromPracticeOverview(index) {
+        document.getElementById('practiceOverviewArea').classList.add('hidden');
+        document.getElementById('resultArea').classList.add('hidden');
+        document.getElementById('examArea').classList.remove('hidden');
+        currentIndex = index;
+        renderQuestion();
+        document.getElementById('examArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        updateStats();
+
+        var practiceBtn = document.getElementById('practiceOverviewBtn');
+        if (practiceBtn.classList.contains('hidden')) {
+            practiceBtn.classList.remove('hidden');
+        }
+    }
+
+    // ============================================================
+    //  错题集
+    // ============================================================
+    function showWrongBook() {
+        var area = document.getElementById('wrongBookArea');
+        var container = document.getElementById('wrongListContainer');
+        document.getElementById('overviewArea').classList.add('hidden');
+        document.getElementById('practiceOverviewArea').classList.add('hidden');
+
+        if (wrongList.length === 0) {
+            container.innerHTML = '<p style="text-align:center;color:#27ae60;font-size:18px;">🎉 太棒了！全部答对，没有错题！</p>';
+        } else {
+            var html = '<p>共 ' + wrongList.length + ' 道错题（点击任意错题跳转回顾）：</p>';
+            for (var i = 0; i < wrongList.length; i++) {
+                var item = wrongList[i];
+                var q = questions[item.index];
+                var letter = String.fromCharCode(65 + q.ans);
+                var yourLetter = item.userAns === -1 ? '（未作答）' : String.fromCharCode(65 + item.userAns);
+                var qText = q.q.length > 50 ? q.q.substring(0, 50) + '...' : q.q;
+                var starMark = markedQuestions[item.index] ? ' ⭐' : '';
+                html += '<div class="wrong-item" onclick="jumpToQuestion(' + item.index + ')">';
+                html += '<div class="q">📌 ' + (item.index + 1) + '. ' + qText + starMark + '</div>';
+                html += '<div>你的答案：<span class="your-ans">' + yourLetter + '</span> &nbsp;|&nbsp; 正确答案：<span class="correct-ans">' + letter + '</span></div>';
+                html += '<div class="jump-hint">👆 点击跳转到此题</div>';
+                html += '</div>';
+            }
+            container.innerHTML = html;
+        }
+
+        area.classList.remove('hidden');
+    }
+
+    function jumpToQuestion(index) {
+        isFromWrongBook = true;
+        isFromOverview = false;
+        document.getElementById('wrongBookArea').classList.add('hidden');
+        document.getElementById('overviewArea').classList.add('hidden');
+        document.getElementById('practiceOverviewArea').classList.add('hidden');
+        document.getElementById('resultArea').classList.add('hidden');
+        document.getElementById('examArea').classList.remove('hidden');
+        currentIndex = index;
+        renderQuestion();
+        document.getElementById('examArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        updateStats();
+    }
+
+    function backToWrongBook() {
+        isFromWrongBook = false;
+        document.getElementById('examArea').classList.add('hidden');
+        document.getElementById('resultArea').classList.remove('hidden');
+        document.getElementById('overviewArea').classList.add('hidden');
+        document.getElementById('practiceOverviewArea').classList.add('hidden');
+        showWrongBook();
+        document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function closeWrongBook() {
+        document.getElementById('wrongBookArea').classList.add('hidden');
+    }
+
+    // ============================================================
+    //  重置
+    // ============================================================
+    function resetExam() {
+        var modeName = currentMode === 'exam' ? '考试' : '练习';
+        if (!confirm('确定要重新' + modeName + '吗？当前进度将丢失。')) return;
+
+        userAnswers = new Array(questions.length).fill(null);
+        markedQuestions = new Array(questions.length).fill(false);
+        practiceAnswered = new Array(questions.length).fill(false);
+        isSubmitted = false;
+        wrongList = [];
+        currentIndex = 0;
+        isFromWrongBook = false;
+        isFromOverview = false;
+
+        var badge = document.getElementById('statusBadge');
+        var practiceOverviewBtn = document.getElementById('practiceOverviewBtn');
+        var submitBtn = document.getElementById('submitBtn');
+
+        if (currentMode === 'exam') {
+            badge.textContent = '📝 考试模式';
+            badge.className = 'badge exam-badge';
+            practiceOverviewBtn.classList.add('hidden');
+            submitBtn.classList.remove('hidden');
+        } else {
+            badge.textContent = '⚡ 练习模式';
+            badge.className = 'badge practice-badge';
+            practiceOverviewBtn.classList.remove('hidden');
+            submitBtn.classList.add('hidden');
+        }
+
+        document.getElementById('resultArea').classList.add('hidden');
+        document.getElementById('examArea').classList.remove('hidden');
+        document.getElementById('overviewArea').classList.add('hidden');
+        document.getElementById('practiceOverviewArea').classList.add('hidden');
+        document.getElementById('wrongBookArea').classList.add('hidden');
+        renderQuestion();
+        updateStats();
+    }
+
+    // 键盘快捷键
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'ArrowLeft') prevQuestion();
+        if (e.key === 'ArrowRight') nextQuestion();
+    });
+
+    // 启动
+    function init() {
+        document.getElementById('modeSelect').classList.remove('hidden');
+        document.getElementById('mainArea').classList.add('hidden');
+    }
+    init();
+</script>
+
+</body>
+</html>
